@@ -492,7 +492,7 @@
     .results {
       margin-top: 12px;
       display: grid;
-      grid-template-columns: 0.95fr 0.75fr 1.4fr;
+      grid-template-columns: 0.95fr 0.75fr 0.75fr 1.4fr; /* ✅ DSR + 서울보증DTI 추가로 4칸 */
       gap: 14px;
       padding: 10px 12px;
       border-radius: 14px;
@@ -663,9 +663,29 @@
               </div>
               <div class="field-unit">연 기준</div>
             </div>
+
+            <!-- ✅ 서울보증 DTI 입력 추가 -->
+            <div class="field-row" style="margin-top: 10px;">
+              <div class="field-label">기존 부채(합산)</div>
+              <div class="field-input">
+                <input type="text" id="existingDebt" placeholder="예: 480,000,000원" />
+              </div>
+              <div class="field-unit">원</div>
+            </div>
+
+            <div class="field-row">
+              <div class="field-label">서울보증 적용금리</div>
+              <div class="field-input">
+                <input type="number" id="sgiRate" min="0" step="0.01" value="5" />
+              </div>
+              <div class="field-unit">%</div>
+            </div>
+
             <p class="hint">
               · 예: <code>80000000</code> 입력 → <strong>80,000,000원</strong>으로 자동 포맷<br />
-              · 계산 시에는 콤마·원(₩)을 제거한 숫자 값만 사용합니다.
+              · 계산 시에는 콤마·원(₩)을 제거한 숫자 값만 사용합니다.<br />
+              · <strong>기존 부채(합산)</strong>은 현재 보유 부채(담보+신용 합산)이며, <strong>주담 실행예정은 미포함</strong>입니다.<br />
+              · 서울보증 DTI는 <strong>(주담 실행예정 연간원리금 + 기존부채×적용금리)</strong>를 소득으로 나눠 산출합니다.
             </p>
           </div>
 
@@ -688,7 +708,8 @@
         <p class="hint">
           · <strong>대출 원금</strong>: 숫자 입력 시 자동으로 <strong>1,000,000원</strong> 형식으로 표기됩니다.<br />
           · <strong>연 이자율</strong>: 퍼센트(%) 단위, 예: 4.5% → <code>4.5</code><br />
-          · <strong>기간</strong>: 연(Year) 단위, 예: 30년 → <code>30</code>
+          · <strong>기간</strong>: 연(Year) 단위, 예: 30년 → <code>30</code><br />
+          · 서울보증 DTI의 “주담 실행예정”은 <strong>대출 종류에 ‘주택담보’가 포함된 첫 번째 행</strong>을 기준으로 계산합니다.
         </p>
 
         <table>
@@ -719,6 +740,7 @@
             <div class="result-label">총 연간 상환액</div>
             <div class="result-value" id="totalAnnualPayment">0 원</div>
           </div>
+
           <div class="result-block">
             <div class="result-label">
               DSR (총부채원리금상환비율)
@@ -726,6 +748,16 @@
             </div>
             <div class="dsr-number" id="dsrValue">0.00%</div>
           </div>
+
+          <!-- ✅ 서울보증 DTI 결과 추가 -->
+          <div class="result-block">
+            <div class="result-label">
+              서울보증 DTI
+              <span id="sgiDtiBadge" class="badge"></span>
+            </div>
+            <div class="dsr-number" id="sgiDtiValue">0.00%</div>
+          </div>
+
           <div class="result-block">
             <div class="result-label">진단 코멘트</div>
             <div class="result-value" id="dsrComment">
@@ -737,7 +769,8 @@
         <p class="note">
           · <strong>30% 미만</strong>: 비교적 안정적인 수준입니다. 추가 대출 여력은 있으나 상환 계획을 함께 검토하는 것이 좋습니다.<br />
           · <strong>30% ~ 40%</strong>: 주의 구간입니다. 추가 대출 승인·한도에 제약이 생길 수 있습니다.<br />
-          · <strong>40% 이상</strong>: 위험 구간으로, 신규·추가 대출이 크게 제한될 수 있습니다.
+          · <strong>40% 이상</strong>: 위험 구간으로, 신규·추가 대출이 크게 제한될 수 있습니다.<br />
+          · <strong>서울보증 DTI</strong>: 소수점 2자리 반올림 기준 <strong>40.00%까지 통과</strong>, <strong>40.01%부터 초과</strong>로 표시됩니다.
         </p>
       </section>
     </div>
@@ -862,6 +895,11 @@
       const incomeInput = document.getElementById("annualIncome");
       const annualIncome = parseMoney(incomeInput.value);
 
+      // ✅ 서울보증 DTI 입력
+      const existingDebt = parseMoney(document.getElementById("existingDebt").value);
+      const sgiRatePercent = Number(document.getElementById("sgiRate").value || 5);
+      const sgiRate = sgiRatePercent / 100;
+
       const tbody = document.getElementById("loanTableBody");
       const rows = Array.from(tbody.querySelectorAll("tr"));
 
@@ -925,19 +963,78 @@
         }
       }
 
+      // ===== ✅ 서울보증 DTI 계산(엑셀 방식) =====
+      // DTI = (주담 실행예정 연간원리금 + 기존부채 * 적용금리) / 연소득 * 100
+      // 주담 실행예정: "주택담보"가 들어간 첫 행의 연간상환액(원리금) 사용
+      let plannedMortgageAnnualPayment = 0;
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll("input");
+        const loanName = (inputs[0].value || "").trim();
+        const annualPayment = parseMoney(inputs[4].value);
+        if (!plannedMortgageAnnualPayment && loanName.includes("주택담보")) {
+          plannedMortgageAnnualPayment = annualPayment;
+        }
+      });
+
+      let sgiDti = 0;
+      if (annualIncome > 0) {
+        sgiDti = ((plannedMortgageAnnualPayment + (existingDebt * sgiRate)) / annualIncome) * 100;
+      }
+
+      const sgiDtiEl = document.getElementById("sgiDtiValue");
+      const sgiBadgeEl = document.getElementById("sgiDtiBadge");
+
+      if (sgiDtiEl && sgiBadgeEl) {
+        // ✅ 소수점 2자리 반올림 기준으로 판정
+        const sgiDtiRounded = Number(sgiDti.toFixed(2));
+        sgiDtiEl.textContent = sgiDtiRounded.toFixed(2) + "%";
+
+        sgiDtiEl.classList.remove("dsr-safe", "dsr-warning", "dsr-danger");
+        sgiBadgeEl.classList.remove("badge-safe", "badge-warning", "badge-danger");
+        sgiBadgeEl.textContent = "";
+
+        if (annualIncome > 0 && sgiDtiRounded <= 40) {
+          sgiDtiEl.classList.add("dsr-safe");
+          sgiBadgeEl.classList.add("badge-safe");
+          sgiBadgeEl.textContent = "통과(≤40%)";
+        } else if (annualIncome > 0) {
+          sgiDtiEl.classList.add("dsr-danger");
+          sgiBadgeEl.classList.add("badge-danger");
+          sgiBadgeEl.textContent = "초과(>40%)";
+          if (comment) comment += " (서울보증 DTI 40% 초과 가능)";
+        }
+      }
+
       commentEl.textContent = comment;
     }
 
     function clearAll() {
       document.getElementById("annualIncome").value = "";
+      document.getElementById("existingDebt").value = "";
+      document.getElementById("sgiRate").value = "5";
+
       initDefaultRows();
+
       document.getElementById("totalAnnualPayment").textContent = "0 원";
+
       const dsrEl = document.getElementById("dsrValue");
       dsrEl.textContent = "0.00%";
       dsrEl.classList.remove("dsr-safe", "dsr-warning", "dsr-danger");
+
       const badgeEl = document.getElementById("dsrBadge");
       badgeEl.textContent = "";
       badgeEl.classList.remove("badge-safe", "badge-warning", "badge-danger");
+
+      const sgiDtiEl = document.getElementById("sgiDtiValue");
+      const sgiBadgeEl = document.getElementById("sgiDtiBadge");
+      if (sgiDtiEl && sgiBadgeEl) {
+        sgiDtiEl.textContent = "0.00%";
+        sgiDtiEl.classList.remove("dsr-safe", "dsr-warning", "dsr-danger");
+        sgiBadgeEl.textContent = "";
+        sgiBadgeEl.classList.remove("badge-safe", "badge-warning", "badge-danger");
+      }
+
       document.getElementById("dsrComment").textContent =
         "연 소득 및 대출 정보를 입력한 후 [DSR 계산하기] 버튼을 눌러주세요.";
     }
@@ -945,6 +1042,7 @@
     window.addEventListener("DOMContentLoaded", () => {
       initDefaultRows();
       attachMoneyFormatter(document.getElementById("annualIncome"));
+      attachMoneyFormatter(document.getElementById("existingDebt")); // ✅ 추가
     });
   </script>
 </body>
