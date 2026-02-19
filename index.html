@@ -1,294 +1,86 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
-<title>DSR · 서울보증 DTI 계산기</title>
+  <meta charset="UTF-8" />
+  <title>DSR · 서울보증 DTI 계산기</title>
+  <style>
+    :root {
+      --bg-gradient-start: #4f46e5;
+      --bg-gradient-end: #ec4899;
+      --bg-soft: #f9fafb;
+      --card-bg: #ffffff;
+      --card-border: #e5e7eb;
+      --text-main: #0f172a;
+      --text-sub: #6b7280;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+      --safe: #16a34a;
+      --warning: #f97316;
+      --danger: #e11d48;
+    }
 
-<style>
-:root{
-  --bg-gradient-start:#4f46e5;
-  --bg-gradient-end:#ec4899;
-  --card-bg:#ffffff;
-  --text-main:#0f172a;
-  --text-sub:#6b7280;
-  --accent:#4f46e5;
-  --safe:#16a34a;
-  --warning:#f97316;
-  --danger:#e11d48;
-}
+    * { box-sizing: border-box; }
 
-*{box-sizing:border-box;}
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;
-  background:#f3f4f6;
-  color:var(--text-main);
-}
+    html, body { margin: 0; padding: 0; min-height: 100%; }
 
-.page{padding:24px;}
-.shell{max-width:1200px;margin:auto;}
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Noto Sans KR", "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(circle at top left, rgba(248,250,252,0.9) 0, #f9fafb 40%, #f3f4f6 100%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
 
-.hero{
-  border-radius:24px;
-  padding:22px 24px;
-  background:linear-gradient(135deg,var(--bg-gradient-start),var(--bg-gradient-end));
-  color:#fff;
-  margin-bottom:18px;
-}
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 32px 16px;
+    }
 
-.card{
-  border-radius:20px;
-  background:var(--card-bg);
-  box-shadow:0 10px 30px rgba(0,0,0,.08);
-  padding:18px;
-}
+    .shell {
+      max-width: 1180px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
 
-.card-title{
-  font-size:16px;
-  font-weight:700;
-  margin-bottom:8px;
-}
+    .hero {
+      border-radius: 24px;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: #f9fafb;
+      box-shadow: 0 24px 50px rgba(15,23,42,0.35);
+      position: relative;
+      overflow: hidden;
+    }
 
-.section-title{
-  font-size:13px;
-  font-weight:700;
-  margin:12px 0 6px;
-}
+    .hero h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
 
-.panel{
-  background:#f9fafb;
-  border-radius:12px;
-  padding:10px;
-  border:1px solid #e5e7eb;
-}
+    .hero p {
+      margin: 8px 0 0;
+      font-size: 13px;
+      color: #e5e7eb;
+      line-height: 1.6;
+      max-width: 760px;
+    }
 
-.field-row{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  margin-bottom:8px;
-}
+    /* ✅ 2열 레이아웃 */
+    .two-col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr);
+      gap: 16px;
+      align-items: start;
+    }
 
-.field-label{min-width:90px;font-size:12px;}
-.field-input input{
-  width:100%;
-  padding:6px 8px;
-  border-radius:8px;
-  border:1px solid #d4d4dd;
-}
-
-.controls{
-  display:flex;
-  justify-content:flex-end;
-  gap:8px;
-  margin-top:8px;
-}
-
-button{
-  border:none;
-  border-radius:999px;
-  padding:6px 12px;
-  cursor:pointer;
-  font-size:12px;
-}
-
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-outline{background:#fff;border:1px solid #ccc;}
-.btn-ghost{background:transparent;border:1px solid #ddd;}
-
-.results{
-  margin-top:10px;
-  padding:10px;
-  border-radius:12px;
-  background:#f9fafb;
-  border:1px solid #e5e7eb;
-}
-
-.dsr-number{
-  font-size:22px;
-  font-weight:800;
-}
-
-.dsr-safe{color:var(--safe);}
-.dsr-warning{color:var(--warning);}
-.dsr-danger{color:var(--danger);}
-
-.badge{
-  padding:2px 6px;
-  border-radius:999px;
-  font-size:10px;
-  margin-left:6px;
-}
-
-.badge-safe{background:#ecfdf3;color:#166534;}
-.badge-danger{background:#fef2f2;color:#b91c1c;}
-
-.two-col{
-  display:grid;
-  grid-template-columns:1.25fr 0.95fr;
-  gap:16px;
-}
-
-@media(max-width:900px){
-  .two-col{grid-template-columns:1fr;}
-}
-</style>
-</head>
-
-<body>
-<div class="page">
-<div class="shell">
-
-<div class="hero">
-  <h2>DSR · 서울보증 DTI 실무 계산기</h2>
-</div>
-
-<div class="two-col">
-
-<!-- ================= 왼쪽: DSR ================= -->
-<section class="card">
-<div class="card-title">DSR 계산기</div>
-
-<div class="section-title">연 소득</div>
-<div class="panel">
-  <div class="field-row">
-    <div class="field-label">연 소득</div>
-    <div class="field-input">
-      <input type="text" id="annualIncome" placeholder="예: 80,000,000원">
-    </div>
-  </div>
-</div>
-
-<div class="controls">
-  <button class="btn-primary" onclick="calculateDSR()">DSR 계산</button>
-</div>
-
-<div class="results">
-  <div class="dsr-number" id="dsrValue">0.00%</div>
-  <div id="dsrComment">연 소득 입력 후 계산하세요.</div>
-</div>
-</section>
-
-<!-- ================= 오른쪽: DTI ================= -->
-<section class="card">
-<div class="card-title">서울보증 DTI (전용)</div>
-
-<div class="section-title">기본 입력</div>
-<div class="panel">
-  <div class="field-row">
-    <div class="field-label">연 소득</div>
-    <div class="field-input"><input type="text" id="dtiIncome"></div>
-  </div>
-
-  <div class="field-row">
-    <div class="field-label">기존 부채</div>
-    <div class="field-input"><input type="text" id="dtiExistingDebt"></div>
-  </div>
-
-  <div class="field-row">
-    <div class="field-label">적용금리</div>
-    <div class="field-input"><input type="number" id="dtiSgiRate" value="5"></div>
-  </div>
-</div>
-
-<div class="section-title">주담 실행예정</div>
-<div class="panel">
-  <div class="field-row">
-    <div class="field-label">원금</div>
-    <div class="field-input"><input type="text" id="dtiMortgagePrincipal"></div>
-  </div>
-
-  <div class="field-row">
-    <div class="field-label">금리</div>
-    <div class="field-input"><input type="number" id="dtiMortgageRate"></div>
-  </div>
-
-  <div class="field-row">
-    <div class="field-label">기간</div>
-    <div class="field-input"><input type="number" id="dtiMortgageYears"></div>
-  </div>
-</div>
-
-<div class="controls">
-  <button class="btn-primary" onclick="calculateDTIOnly()">DTI 계산</button>
-</div>
-
-<div class="results">
-  <div class="dsr-number" id="dtiValue">0.00%</div>
-  <div id="dtiComment">값 입력 후 계산하세요.</div>
-</div>
-</section>
-
-</div>
-</div>
-</div>
-
-<script>
-function parseMoney(str){
-  if(!str) return 0;
-  return Number(str.toString().replace(/[^0-9]/g,""));
-}
-
-// ⭐ 월기준 원리금균등 → 연환산
-function calcAnnualPayment(P,r,y){
-  if(P<=0||y<=0) return 0;
-  const n=y*12;
-  const m=r/12;
-  if(m===0) return (P/n)*12;
-  const pow=Math.pow(1+m,n);
-  const monthly=P*m*pow/(pow-1);
-  return monthly*12;
-}
-
-// ===== DSR =====
-function calculateDSR(){
-  const income=parseMoney(document.getElementById("annualIncome").value);
-  const dsrEl=document.getElementById("dsrValue");
-  const comment=document.getElementById("dsrComment");
-
-  if(income<=0){
-    comment.textContent="연 소득 입력 필요";
-    dsrEl.textContent="0.00%";
-    return;
-  }
-
-  // (데모용) 단순 표시
-  dsrEl.textContent="계산 구조 준비됨";
-  comment.textContent="대출 테이블 연동 버전에서 자동 계산됩니다.";
-}
-
-// ===== DTI =====
-function calculateDTIOnly(){
-  const income=parseMoney(document.getElementById("dtiIncome").value);
-  const debt=parseMoney(document.getElementById("dtiExistingDebt").value);
-  const rate=Number(document.getElementById("dtiSgiRate").value||5)/100;
-
-  const p=parseMoney(document.getElementById("dtiMortgagePrincipal").value);
-  const r=Number(document.getElementById("dtiMortgageRate").value||0)/100;
-  const y=Number(document.getElementById("dtiMortgageYears").value||0);
-
-  const el=document.getElementById("dtiValue");
-  const comment=document.getElementById("dtiComment");
-
-  if(income<=0){
-    comment.textContent="연 소득 입력 필요";
-    return;
-  }
-
-  const mortgage=calcAnnualPayment(p,r,y);
-  const dti=((mortgage+(debt*rate))/income)*100;
-  const v=Number(dti.toFixed(2));
-
-  el.textContent=v.toFixed(2)+"%";
-
-  if(v<=40){
-    el.className="dsr-number dsr-safe";
-    comment.textContent="DTI 통과 범위";
-  }else{
-    el.className="dsr-number dsr-danger";
-    comment.textContent="DTI 초과 가능";
-  }
-}
-</script>
-</body>
-</html>
+    .card {
+      border-radius: 20px;
+      background: var(--card-bg);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.08), 0 0 0 1px rgba(148,163,184,0.20);
+      border: 1px solid rgba(148,163,184,0.20);
