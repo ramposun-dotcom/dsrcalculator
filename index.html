@@ -1,268 +1,85 @@
-        <!-- ===================== (오른쪽) 서울보증(SGI) DTI 전용 ===================== -->
-        <section class="card" id="dtiCard">
-          <div class="card-headline">
-            <h2 class="card-title">
-              서울보증(SGI) DTI
-              <span class="card-badge" style="background:#e0e7ff; color:#4338ca;">전세대출 전용</span>
-            </h2>
-            <div class="card-sub">
-              (기존이자 + 신규이자) ÷ 연소득 ≤ 40%
-            </div>
-          </div>
+// ===================== DTI 전용 계산(추가만) =====================
+function calculateDTIOnly() {
+  const income = parseMoney(document.getElementById("dtiIncome").value);
+  const existingDebt = parseMoney(document.getElementById("dtiExistingDebt").value);
+  const sgiRate = Number(document.getElementById("dtiSgiRate").value || 5) / 100;
 
-          <div class="section-title">1. 소득 및 기존 부채</div>
-          <div class="panel">
-            <div class="field-row">
-              <span class="field-label">① 연 소득</span>
-              <div class="field-input">
-                <input type="text" id="sgiIncome" placeholder="증빙/인정소득 입력" onkeyup="formatNumber(this)" />
-              </div>
-              <span class="field-unit">원</span>
-            </div>
+  const mPrincipal = parseMoney(document.getElementById("dtiMortgagePrincipal").value);
+  const mRate = Number(document.getElementById("dtiMortgageRate").value || 0) / 100;
+  const mYears = Number(document.getElementById("dtiMortgageYears").value || 0);
 
-            <div class="field-row">
-              <span class="field-label">② 기존부채 이자</span>
-              <div class="field-input">
-                <input type="text" id="sgiExistInterest" placeholder="연간 총 이자 상환액" onkeyup="formatNumber(this)" />
-              </div>
-              <span class="field-unit">원/년</span>
-            </div>
-            <p class="hint">
-              * 기존 대출은 '원금'이 아닌 <strong>'연간 이자 상환액'</strong>만 입력하세요.
-            </p>
-          </div>
+  const dtiEl = document.getElementById("dtiValue");
+  const badgeEl = document.getElementById("dtiBadge");
+  const commentEl = document.getElementById("dtiComment");
 
-          <div class="section-title">2. 신규 SGI 전세대출 조건</div>
-          <div class="panel" style="background-color: #f0fdf4; border-color: #bbf7d0;">
-            <div class="field-row">
-              <span class="field-label">③ 대출 신청금액</span>
-              <div class="field-input">
-                <input type="text" id="sgiLoanAmt" placeholder="예: 300,000,000" onkeyup="formatNumber(this)" />
-              </div>
-              <span class="field-unit">원</span>
-            </div>
+  // 안전장치: 필수 DOM이 없으면 종료
+  if (!dtiEl || !badgeEl || !commentEl) return;
 
-            <div class="field-row">
-              <span class="field-label">④ 적용 금리</span>
-              <div class="field-input">
-                <input type="number" id="sgiRate" placeholder="예: 4.5" step="0.01" />
-              </div>
-              <span class="field-unit">%</span>
-            </div>
-            <p class="hint">
-              * 실제 대출 금리 또는 심사 금리(잔액 기준 등)를 입력하세요.
-            </p>
-          </div>
+  // 입력 검증
+  if (income <= 0) {
+    dtiEl.textContent = "0.00%";
+    dtiEl.classList.remove("dsr-safe", "dsr-warning", "dsr-danger");
+    badgeEl.textContent = "";
+    badgeEl.classList.remove("badge-safe", "badge-warning", "badge-danger");
+    commentEl.textContent = "연 소득을 입력해 주세요.";
+    return;
+  }
 
-          <div class="controls">
-            <button class="btn-outline" type="button" onclick="clearSGI()">초기화</button>
-            <button class="btn-primary" type="button" onclick="calculateSGI()">SGI DTI 계산하기</button>
-          </div>
+  // 주담 연간원리금(기존 calcAnnualPayment() 재사용)
+  const mortgageAnnual = calcAnnualPayment(mPrincipal, mRate, mYears);
 
-          <div class="section-title">3. SGI 심사 결과</div>
-          <div class="results results-one">
-            <div class="result-block">
-              <div class="result-label">총 연간 부채상환액 (기존이자+신규이자)</div>
-              <div class="result-value" id="sgiTotalPayment">0 원</div>
-            </div>
-            <div class="result-block">
-              <div class="result-label">
-                DTI (총부채상환비율)
-                <span id="sgiBadge" class="badge"></span>
-              </div>
-              <div class="dsr-number" id="sgiValue">0.00%</div>
-            </div>
-            <div class="result-block">
-              <div class="result-label">진단 코멘트</div>
-              <div class="result-value" id="sgiComment">정보 입력 후 계산 버튼을 눌러주세요.</div>
-            </div>
-          </div>
+  // 요청 산식: (주담 연간원리금 + 기존부채×적용금리) / 연소득 * 100
+  const dti = ((mortgageAnnual + (existingDebt * sgiRate)) / income) * 100;
+  const rounded = Number(dti.toFixed(2)); // 소수점 2자리 반올림 기준
 
-          <p class="note">
-            <strong>[심사 기준 참고]</strong><br/>
-            · <strong>40% 이내</strong>: 안정권 (승인 가능성 높음)<br/>
-            · <strong>40% 초과</strong>: <span style="color:#e11d48; font-weight:bold;">부결 위험</span> (소득 증빙 추가 또는 대출 감액 필요)
-          </p>
-        </section>
+  dtiEl.textContent = rounded.toFixed(2) + "%";
 
-      </div> <!-- two-col 끝 -->
-    </div> <!-- shell 끝 -->
-  </div> <!-- page 끝 -->
+  dtiEl.classList.remove("dsr-safe", "dsr-warning", "dsr-danger");
+  badgeEl.classList.remove("badge-safe", "badge-warning", "badge-danger");
+  badgeEl.textContent = "";
 
-  <!-- ===================== 자바스크립트 (기능 구현) ===================== -->
-  <script>
-    /* 공통 함수: 숫자 콤마 포맷팅 */
-    function formatNumber(input) {
-      let value = input.value.replace(/[^0-9]/g, '');
-      input.value = value ? Number(value).toLocaleString() : '';
-    }
+  if (rounded <= 40) {
+    dtiEl.classList.add("dsr-safe");
+    badgeEl.classList.add("badge-safe");
+    badgeEl.textContent = "통과(≤40%)";
+    commentEl.textContent = "DTI 기준 통과 범위입니다(소수점 2자리 반올림 기준).";
+  } else {
+    dtiEl.classList.add("dsr-danger");
+    badgeEl.classList.add("badge-danger");
+    badgeEl.textContent = "초과(>40%)";
+    commentEl.textContent = "DTI 기준 초과 가능성이 있습니다(소수점 2자리 반올림 기준).";
+  }
+}
 
-    /* 공통 함수: 콤마 제거 후 숫자 변환 */
-    function getNumber(id) {
-      const el = document.getElementById(id);
-      return el && el.value ? parseFloat(el.value.replace(/,/g, '')) : 0;
-    }
+function clearDTI() {
+  const ids = [
+    "dtiIncome",
+    "dtiExistingDebt",
+    "dtiMortgagePrincipal",
+    "dtiMortgageRate",
+    "dtiMortgageYears"
+  ];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
 
-    /* ===================== [왼쪽] DSR 기능 (기존 유지) ===================== */
-    // (이 부분은 아까 드린 DSR 코드 그대로 두시면 됩니다. 혹시 필요하면 다시 드릴게요!)
-    
-    // 초기 행 추가
-    window.onload = function() {
-      addLoanRow();
-      addLoanRow();
-    };
+  const rateEl = document.getElementById("dtiSgiRate");
+  if (rateEl) rateEl.value = "5";
 
-    function addLoanRow() {
-      const tbody = document.getElementById('loanTableBody');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input type="text" placeholder="예: 신용대출/주담대"></td>
-        <td><input type="text" class="amt" placeholder="0" onkeyup="formatNumber(this)"></td>
-        <td><input type="number" class="rate" placeholder="0" step="0.1"></td>
-        <td><input type="number" class="term" placeholder="0"></td>
-        <td><input type="text" class="annualPay" placeholder="자동계산" readonly></td>
-      `;
-      tbody.appendChild(tr);
-    }
+  const dtiEl = document.getElementById("dtiValue");
+  const badgeEl = document.getElementById("dtiBadge");
+  const commentEl = document.getElementById("dtiComment");
 
-    function calculateDSR() {
-      const income = getNumber('annualIncome');
-      if (income === 0) { alert("연 소득을 입력해주세요!"); return; }
-
-      let totalAnnualPayment = 0;
-      const rows = document.querySelectorAll('#loanTableBody tr');
-
-      rows.forEach(row => {
-        const amtInput = row.querySelector('.amt');
-        const rateInput = row.querySelector('.rate');
-        const termInput = row.querySelector('.term');
-        const payInput = row.querySelector('.annualPay');
-
-        const P = parseFloat(amtInput.value.replace(/,/g, '')) || 0;
-        const r = (parseFloat(rateInput.value) || 0) / 100;
-        const n = parseFloat(termInput.value) || 0;
-
-        let annualPay = 0;
-        // 원리금균등상환 약식 계산
-        if (P > 0 && r > 0 && n > 0) {
-          const mr = r / 12;
-          const mn = n * 12;
-          annualPay = ((P * mr * Math.pow(1 + mr, mn)) / (Math.pow(1 + mr, mn) - 1)) * 12;
-        } else if (P > 0 && r === 0 && n > 0) {
-          annualPay = P / n; // 이자 0%면 원금균등
-        } else if (P > 0 && n === 0) {
-           // 기간 미입력시 이자만 계산 (만기일시상환 가정)
-           annualPay = P * r;
-        }
-
-        if (annualPay > 0) {
-          payInput.value = Math.round(annualPay).toLocaleString();
-          totalAnnualPayment += annualPay;
-        } else {
-          payInput.value = "";
-        }
-      });
-
-      const dsr = (totalAnnualPayment / income) * 100;
-      
-      document.getElementById('totalAnnualPayment').innerText = Math.round(totalAnnualPayment).toLocaleString() + " 원";
-      document.getElementById('dsrValue').innerText = dsr.toFixed(2) + "%";
-
-      // DSR 배지 처리
-      const badge = document.getElementById('dsrBadge');
-      const comment = document.getElementById('dsrComment');
-      const valEl = document.getElementById('dsrValue');
-
-      badge.className = 'badge'; 
-      valEl.className = 'dsr-number';
-
-      if (dsr <= 40) {
-        badge.classList.add('badge-safe'); badge.innerText = '안전';
-        valEl.classList.add('dsr-safe');
-        comment.innerText = "DSR 40% 이내 (안정권)";
-      } else if (dsr <= 50) {
-        badge.classList.add('badge-warning'); badge.innerText = '주의';
-        valEl.classList.add('dsr-warning');
-        comment.innerText = "DSR 40% 초과 (2금융권 검토)";
-      } else {
-        badge.classList.add('badge-danger'); badge.innerText = '위험';
-        valEl.classList.add('dsr-danger');
-        comment.innerText = "DSR 50% 초과 (승인 불가)";
-      }
-    }
-
-    function clearDSR() {
-      document.getElementById('annualIncome').value = "";
-      document.getElementById('loanTableBody').innerHTML = "";
-      addLoanRow(); addLoanRow();
-      document.getElementById('totalAnnualPayment').innerText = "0 원";
-      document.getElementById('dsrValue').innerText = "0.00%";
-      document.getElementById('dsrComment').innerText = "초기화되었습니다.";
-    }
-
-
-    /* ===================== [오른쪽] SGI DTI 기능 (핵심!) ===================== */
-    function calculateSGI() {
-      // 1. 입력값 가져오기
-      const income = getNumber('sgiIncome');
-      const existInterest = getNumber('sgiExistInterest'); // 기존부채 연이자
-      const loanAmt = getNumber('sgiLoanAmt');             // 신규 대출금
-      const rate = parseFloat(document.getElementById('sgiRate').value) || 0;
-
-      if (income === 0) {
-        alert("① 연 소득을 입력해주세요!");
-        document.getElementById('sgiIncome').focus();
-        return;
-      }
-
-      // 2. 신규 대출 연간 이자 계산 (SGI 전세대출은 보통 이자만 따짐)
-      // 공식: 신규대출금 * 연금리
-      const newInterest = loanAmt * (rate / 100);
-
-      // 3. 총 연간 상환액 (기존이자 + 신규이자)
-      const totalAnnualPay = existInterest + newInterest;
-
-      // 4. DTI 계산
-      const dti = (totalAnnualPay / income) * 100;
-
-      // 5. 결과 뿌리기
-      document.getElementById('sgiTotalPayment').innerText = Math.round(totalAnnualPay).toLocaleString() + " 원";
-      document.getElementById('sgiValue').innerText = dti.toFixed(2) + "%";
-
-      // 6. 진단 로직
-      const badge = document.getElementById('sgiBadge');
-      const comment = document.getElementById('sgiComment');
-      const valEl = document.getElementById('sgiValue');
-
-      badge.className = 'badge';
-      valEl.className = 'dsr-number';
-
-      // SGI 기준: 보통 40%를 기준으로 봄
-      if (dti <= 40) {
-        badge.classList.add('badge-safe');
-        badge.innerText = '안전';
-        valEl.classList.add('dsr-safe');
-        comment.innerHTML = "<strong>승인 가능성 높음!</strong><br>DTI가 40% 이내로 안정적입니다.";
-      } else {
-        badge.classList.add('badge-danger');
-        badge.innerText = '위험';
-        valEl.classList.add('dsr-danger');
-        // 역산: DTI 40%를 맞추려면 소득이 얼마여야 하는지 알려줌
-        const requiredIncome = totalAnnualPay / 0.4;
-        comment.innerHTML = `<strong>부결 위험!</strong><br>DTI 40%를 맞추려면<br>연소득이 약 <u>${Math.round(requiredIncome/10000).toLocaleString()}만원</u> 필요합니다.`;
-      }
-    }
-
-    function clearSGI() {
-      document.getElementById('sgiIncome').value = "";
-      document.getElementById('sgiExistInterest').value = "";
-      document.getElementById('sgiLoanAmt').value = "";
-      document.getElementById('sgiRate').value = "";
-      document.getElementById('sgiTotalPayment').innerText = "0 원";
-      document.getElementById('sgiValue').innerText = "0.00%";
-      document.getElementById('sgiComment').innerText = "초기화되었습니다.";
-    }
-
-  </script>
-</body>
-</html>
+  if (dtiEl) {
+    dtiEl.textContent = "0.00%";
+    dtiEl.classList.remove("dsr-safe", "dsr-warning", "dsr-danger");
+  }
+  if (badgeEl) {
+    badgeEl.textContent = "";
+    badgeEl.classList.remove("badge-safe", "badge-warning", "badge-danger");
+  }
+  if (commentEl) {
+    commentEl.textContent = "값을 입력한 후 [DTI 계산하기]를 눌러주세요.";
+  }
+}
