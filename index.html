@@ -1,293 +1,1098 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>DSR · 서울보증(SGI) DTI 계산기</title>
-  <style>
-    :root {
-      --bg-gradient-start: #4f46e5;
-      --bg-gradient-end: #ec4899;
-      --bg-soft: #f9fafb;
-      --card-bg: #ffffff;
-      --card-border: #e5e7eb;
-      --text-main: #0f172a;
-      --text-sub: #6b7280;
-      --accent: #4f46e5;
-      --accent-soft: #eef2ff;
-      --safe: #16a34a;
-      --warning: #f97316;
-      --danger: #e11d48;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>대출 실무 계산기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#0d1117;
+  --surface:#161b22;
+  --surface2:#21262d;
+  --border:#30363d;
+  --border2:#444c56;
+  --gold:#d4a853;
+  --gold2:#f0c96c;
+  --text:#e6edf3;
+  --text2:#8b949e;
+  --text3:#6e7681;
+  --safe:#3fb950;
+  --warn:#d29922;
+  --danger:#f85149;
+  --accent:#58a6ff;
+  --radius:12px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  font-family:'Noto Sans KR',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+}
 
-    * { box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Noto Sans KR", sans-serif;
-      background: #f3f4f6;
-      color: var(--text-main);
-      margin: 0; padding: 20px;
-    }
+/* ─── Header ─── */
+.header{
+  background:linear-gradient(135deg,#1a1f2e 0%,#161b22 50%,#1a1208 100%);
+  border-bottom:1px solid var(--border);
+  padding:20px 24px;
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+.header-icon{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.header h1{font-size:22px;font-weight:700;letter-spacing:-0.5px;}
+.header p{font-size:12px;color:var(--text2);margin-top:2px;}
+.header-badge{
+  margin-left:auto;
+  background:rgba(212,168,83,.15);
+  border:1px solid rgba(212,168,83,.3);
+  color:var(--gold2);
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:500;
+}
 
-    .shell { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-    
-    .hero {
-      border-radius: 20px; padding: 20px;
-      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-      color: white; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-    .hero h1 { margin: 0; font-size: 20px; }
-    .hero p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
+/* ─── Tabs ─── */
+.tabs-wrap{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 24px;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.tabs-wrap::-webkit-scrollbar{display:none;}
+.tabs{
+  display:flex;
+  gap:0;
+  min-width:max-content;
+}
+.tab{
+  padding:14px 18px;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:500;
+  color:var(--text2);
+  border-bottom:2px solid transparent;
+  white-space:nowrap;
+  transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.tab:hover{color:var(--text);}
+.tab.active{
+  color:var(--gold2);
+  border-bottom-color:var(--gold);
+}
+.tab-icon{font-size:15px;}
 
-    .two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; }
+/* ─── Content ─── */
+.content{padding:24px;max-width:1200px;margin:auto;}
 
-    .card {
-      background: white; border-radius: 20px; padding: 20px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--card-border);
-    }
+.page{display:none;}
+.page.active{display:block;}
 
-    .card-headline { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .card-title { font-size: 17px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px; }
-    .card-badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; font-weight: 700; }
+/* ─── Cards & Panels ─── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  margin-bottom:16px;
+}
+.card-header{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:16px;
+  padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.card-header h2{font-size:15px;font-weight:700;}
+.card-tip{
+  font-size:11px;color:var(--text2);
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:8px 12px;
+  line-height:1.6;
+  margin-bottom:14px;
+}
+.card-tip strong{color:var(--gold2);}
 
-    .section-title { font-size: 14px; font-weight: 700; margin: 15px 0 8px; color: #1e293b; }
-    .panel { background: #f8fafc; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; }
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+@media(max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr;}}
 
-    .field-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .field-label { min-width: 100px; font-size: 13px; font-weight: 600; }
-    .field-input { flex: 1; }
-    .field-input input {
-      width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1;
-      font-size: 14px; outline: none;
-    }
-    .field-unit { font-size: 12px; color: var(--text-sub); width: 45px; }
+/* ─── Form Elements ─── */
+.field{margin-bottom:12px;}
+.field label{
+  display:block;
+  font-size:11px;font-weight:600;
+  color:var(--text2);
+  margin-bottom:5px;
+  letter-spacing:.3px;
+  text-transform:uppercase;
+}
+.field input,.field select{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius-sm);
+  padding:9px 12px;
+  color:var(--text);
+  font-size:13px;
+  font-family:inherit;
+  transition:border-color .2s;
+}
+.field input:focus,.field select:focus{
+  outline:none;
+  border-color:var(--gold);
+}
+.field select option{background:var(--surface);}
+.field input::placeholder{color:var(--text3);}
 
-    .hint { font-size: 11px; color: #64748b; margin: 5px 0; line-height: 1.4; }
+.section-label{
+  font-size:11px;font-weight:700;
+  color:var(--gold);
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin:16px 0 8px;
+}
 
-    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
-    th { background: #f1f5f9; padding: 8px; text-align: center; border-bottom: 2px solid #e2e8f0; }
-    td { padding: 5px; border-bottom: 1px solid #f1f5f9; }
-    td input { width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 12px; }
+/* ─── Loan Rows ─── */
+.loan-table{width:100%;border-collapse:collapse;}
+.loan-table th{
+  font-size:10px;color:var(--text3);font-weight:600;
+  text-transform:uppercase;letter-spacing:.5px;
+  padding:6px 8px;
+  text-align:left;
+  border-bottom:1px solid var(--border);
+}
+.loan-table td{padding:6px 4px;vertical-align:middle;}
+.loan-table td input{
+  width:100%;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:7px 8px;
+  color:var(--text);
+  font-size:12px;
+  font-family:'JetBrains Mono',monospace;
+}
+.loan-table td input:focus{outline:none;border-color:var(--gold);}
+.loan-table td input[readonly]{
+  background:var(--bg);
+  color:var(--text2);
+  cursor:default;
+}
+.loan-table .type-label{
+  font-size:11px;color:var(--text);font-weight:500;
+  padding:6px 8px;
+  white-space:nowrap;
+}
+.loan-row:hover td{background:rgba(212,168,83,.03);}
 
-    .controls { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
-    button { 
-      padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 12px; border: none;
-    }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-outline { background: white; border: 1px solid #cbd5e1; color: #475569; }
-    .btn-ghost { background: #f1f5f9; color: #475569; }
+/* ─── Buttons ─── */
+.btn-row{display:flex;gap:8px;margin-top:16px;}
+.btn{
+  border:none;border-radius:999px;
+  padding:10px 20px;cursor:pointer;
+  font-size:13px;font-weight:600;
+  font-family:inherit;
+  transition:all .15s;
+}
+.btn-gold{
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  color:#0d1117;
+}
+.btn-gold:hover{filter:brightness(1.1);transform:translateY(-1px);}
+.btn-ghost{
+  background:transparent;
+  border:1px solid var(--border2);
+  color:var(--text2);
+}
+.btn-ghost:hover{border-color:var(--text2);color:var(--text);}
 
-    .results { margin-top: 15px; background: #f1f5f9; border-radius: 12px; padding: 15px; }
-    .result-block { margin-bottom: 10px; }
-    .result-label { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
-    .result-value { font-weight: 700; font-size: 14px; }
-    .dsr-number { font-size: 24px; font-weight: 800; }
+/* ─── Result Box ─── */
+.result-box{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:16px;
+  margin-top:16px;
+}
+.result-main{
+  font-family:'JetBrains Mono',monospace;
+  font-size:30px;font-weight:600;
+  letter-spacing:-1px;
+  line-height:1;
+}
+.result-safe{color:var(--safe);}
+.result-warn{color:var(--warn);}
+.result-danger{color:var(--danger);}
+.result-neutral{color:var(--gold2);}
+.result-label{
+  font-size:11px;color:var(--text2);
+  margin-top:6px;
+}
+.result-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;
+  border-bottom:1px solid var(--border);
+  font-size:12px;
+}
+.result-row:last-child{border-bottom:none;}
+.result-row span:first-child{color:var(--text2);}
+.result-row span:last-child{
+  font-family:'JetBrains Mono',monospace;
+  font-weight:600;
+  color:var(--text);
+}
+.result-row.total span:last-child{color:var(--gold2);}
+.result-row.dsr-row span:last-child{font-size:15px;}
 
-    .badge { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 800; margin-left: 5px; }
-    .badge-safe { background: #dcfce7; color: #166534; }
-    .badge-danger { background: #fee2e2; color: #991b1b; }
-    
-    .dsr-safe { color: var(--safe); }
-    .dsr-danger { color: var(--danger); }
+/* ─── Badge ─── */
+.badge{
+  display:inline-flex;align-items:center;
+  padding:3px 8px;border-radius:999px;
+  font-size:10px;font-weight:700;
+  letter-spacing:.3px;
+}
+.badge-safe{background:rgba(63,185,80,.15);color:var(--safe);}
+.badge-warn{background:rgba(210,153,34,.15);color:var(--warn);}
+.badge-danger{background:rgba(248,81,73,.15);color:var(--danger);}
 
-    .note { font-size: 11px; color: var(--text-sub); margin-top: 10px; line-height: 1.5; }
+/* ─── Info Table (보증료율 등) ─── */
+.info-table{width:100%;border-collapse:collapse;font-size:12px;}
+.info-table th{
+  background:var(--surface2);
+  padding:8px 10px;text-align:left;
+  font-size:10px;color:var(--text3);font-weight:600;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.info-table td{
+  padding:8px 10px;
+  border-top:1px solid var(--border);
+}
+.info-table tr.highlight td{color:var(--gold2);font-weight:600;}
 
-    @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
-  </style>
+/* ─── Meter ─── */
+.meter-wrap{margin:10px 0;}
+.meter-track{
+  height:8px;background:var(--surface2);border-radius:999px;overflow:hidden;
+}
+.meter-fill{
+  height:100%;border-radius:999px;
+  background:var(--safe);
+  transition:width .5s cubic-bezier(.4,0,.2,1),background .3s;
+  max-width:100%;
+}
+
+/* ─── Divider ─── */
+.divider{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+/* ─── Note ─── */
+.note{
+  font-size:11px;color:var(--text3);
+  background:rgba(255,255,255,.02);
+  border-left:2px solid var(--border2);
+  padding:8px 12px;
+  border-radius:0 6px 6px 0;
+  line-height:1.7;
+  margin-top:8px;
+}
+
+/* ─── Age Income Table ─── */
+.age-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.age-table th{background:var(--surface2);padding:8px;text-align:center;font-size:10px;color:var(--text3);font-weight:600;}
+.age-table td{padding:8px;text-align:center;border-top:1px solid var(--border);}
+.age-table td:first-child{text-align:left;font-weight:600;color:var(--text2);}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.page.active{animation:fadeIn .25s ease;}
+.result-box{animation:fadeIn .2s ease;}
+</style>
 </head>
 <body>
-  <div class="shell">
-    <section class="hero">
-      <h1>DSR · 서울보증(SGI) DTI 시뮬레이터</h1>
-      <p>실무 심사 기준을 반영한 연간 부채 상환액 계산기 (전세대출/다중채출용)</p>
-    </section>
 
-    <div class="two-col">
-      <section class="card">
-        <div class="card-headline">
-          <h2 class="card-title">DSR 계산기 <span class="card-badge" style="background:var(--accent-soft); color:var(--accent);">원리금 합산</span></h2>
-        </div>
-        <div class="section-title">1. 소득 입력</div>
-        <div class="field-row">
-          <span class="field-label">연 소득</span>
-          <div class="field-input"><input type="text" id="annualIncome" onkeyup="formatNumber(this)" placeholder="0"></div>
-          <span class="field-unit">원</span>
-        </div>
-        
-        <div class="section-title">2. 대출 상세 정보</div>
-        <table id="loanTable">
-          <thead>
-            <tr><th>대출명</th><th>원금(원)</th><th>금리(%)</th><th>기간(년)</th><th>연상환액</th></tr>
-          </thead>
-          <tbody id="loanTableBody"></tbody>
-        </table>
-        <div class="controls">
-          <button class="btn-ghost" onclick="addLoanRow()">+ 행 추가</button>
-          <button class="btn-outline" onclick="clearDSR()">초기화</button>
-          <button class="btn-primary" onclick="calculateDSR()">DSR 계산</button>
-        </div>
-        <div class="results">
-          <div class="result-label">총 연간 원리금 상환액</div>
-          <div class="result-value" id="totalAnnualPayment">0 원</div>
-          <div class="result-label" style="margin-top:10px;">DSR 결과 <span id="dsrBadge" class="badge"></span></div>
-          <div class="dsr-number" id="dsrValue">0.00%</div>
-          <div id="dsrComment" style="font-size:12px; margin-top:5px; color:#64748b;">정보 입력 후 계산해주세요.</div>
-        </div>
-      </section>
+<div class="header">
+  <div class="header-icon">🏦</div>
+  <div>
+    <h1>대출 실무 계산기</h1>
+    <p>DSR · DTI · 서울보증 · 주택보증 · 도시보증 · 채권할인</p>
+  </div>
+  <div class="header-badge">실무용</div>
+</div>
 
-      <section class="card" id="dtiCard">
-        <div class="card-headline">
-          <h2 class="card-title">SGI 서울보증 DTI <span class="card-badge" style="background:#e0e7ff; color:#4338ca;">전세대출용</span></h2>
-          <div style="font-size:11px; color:var(--text-sub);">(기존이자+신규이자) / 소득</div>
-        </div>
+<div class="tabs-wrap">
+  <div class="tabs">
+    <div class="tab active" onclick="showTab(0)"><span class="tab-icon">📊</span>담보대출 DSR</div>
+    <div class="tab" onclick="showTab(1)"><span class="tab-icon">🏠</span>전세대출 DSR</div>
+    <div class="tab" onclick="showTab(2)"><span class="tab-icon">🏢</span>서울보증 DTI</div>
+    <div class="tab" onclick="showTab(3)"><span class="tab-icon">📐</span>신DTI</div>
+    <div class="tab" onclick="showTab(4)"><span class="tab-icon">🔗</span>채권할인비용</div>
+    <div class="tab" onclick="showTab(5)"><span class="tab-icon">📋</span>주택보증 한도/보증료</div>
+    <div class="tab" onclick="showTab(6)"><span class="tab-icon">🏙️</span>도시보증 보증료</div>
+    <div class="tab" onclick="showTab(7)"><span class="tab-icon">📈</span>장래소득 환산</div>
+  </div>
+</div>
 
-        <div class="section-title">1. 소득 및 부채 정보</div>
-        <div class="panel">
-          <div class="field-row">
-            <span class="field-label">① 연 소득</span>
-            <div class="field-input"><input type="text" id="sgiIncome" onkeyup="formatNumber(this)" placeholder="증빙/인정소득"></div>
-            <span class="field-unit">원</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">② 기존부채 이자</span>
-            <div class="field-input"><input type="text" id="sgiExistInterest" onkeyup="formatNumber(this)" placeholder="연간 총 이자합계"></div>
-            <span class="field-unit">원/년</span>
-          </div>
-          <p class="hint">* 기존대출은 원금이 아닌 <b>'1년치 이자'</b>만 입력하세요.</p>
-        </div>
+<div class="content">
 
-        <div class="section-title">2. 신규 SGI 대출 조건</div>
-        <div class="panel" style="background:#f0fdf4; border-color:#bbf7d0;">
-          <div class="field-row">
-            <span class="field-label">③ 신청 금액</span>
-            <div class="field-input"><input type="text" id="sgiLoanAmt" onkeyup="formatNumber(this)" placeholder="0"></div>
-            <span class="field-unit">원</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">④ 적용 금리</span>
-            <div class="field-input"><input type="number" id="sgiRate" step="0.01" placeholder="예: 4.5"></div>
-            <span class="field-unit">%</span>
-          </div>
-        </div>
+<!-- ══════════════ PAGE 0: 담보대출 DSR ══════════════ -->
+<div class="page active" id="page0">
+  <div class="card">
+    <div class="card-header">
+      <span>📊</span>
+      <h2>담보대출 DSR 계산기</h2>
+    </div>
+    <div class="card-tip">
+      <strong>주담대</strong>는 원금·기간·금리 모두 입력 | <strong>전세·예적금</strong>은 원금·금리 입력 | <strong>기타(리스·할부·카드론)</strong>는 1년간 실제 상환액을 직접 입력
+    </div>
 
-        <div class="controls">
-          <button class="btn-outline" onclick="clearSGI()">초기화</button>
-          <button class="btn-primary" onclick="calculateSGI()">SGI DTI 계산하기</button>
-        </div>
+    <div class="field">
+      <label>연 소득</label>
+      <input type="text" id="dsr0_income" placeholder="예: 80,000,000" oninput="fmtMoney(this)">
+    </div>
 
-        <div class="section-title">3. 심사 결과</div>
-        <div class="results">
-          <div class="result-block">
-            <div class="result-label">총 연간 이자 상환액 (기존+신규)</div>
-            <div class="result-value" id="sgiTotalPayment">0 원</div>
-          </div>
-          <div class="result-block">
-            <div class="result-label">SGI DTI 비율 <span id="sgiBadge" class="badge"></span></div>
-            <div class="dsr-number" id="sgiValue">0.00%</div>
-          </div>
-          <div class="result-block">
-            <div class="result-label">실무 진단</div>
-            <div id="sgiComment" style="font-size:12px; font-weight:600; color:#1e293b;">입력 후 계산 버튼을 눌러주세요.</div>
-          </div>
+    <div class="section-label">대출 현황</div>
+    <div style="overflow-x:auto;">
+    <table class="loan-table">
+      <thead>
+        <tr>
+          <th style="min-width:130px">대출 유형</th>
+          <th style="min-width:120px">원금 (원)</th>
+          <th style="min-width:70px">기간 (년)</th>
+          <th style="min-width:80px">금리 (%)</th>
+          <th style="min-width:120px">연간 상환액</th>
+        </tr>
+      </thead>
+      <tbody id="dsr0_rows">
+        <!-- rows inserted by JS -->
+      </tbody>
+    </table>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="calcDSR0()">DSR 계산하기</button>
+      <button class="btn btn-ghost" onclick="resetDSR0()">초기화</button>
+    </div>
+
+    <div class="result-box" id="dsr0_result" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div>
+          <div class="result-main" id="dsr0_pct">0.00%</div>
+          <div class="result-label">DSR (총부채원리금상환비율)</div>
         </div>
-        <p class="note"><b>[심사기준]</b> SGI 전세자금대출은 DTI <b>40% 이내</b>여야 승인 가능합니다. 초과 시 대출 감액 또는 소득 합산이 필요합니다.</p>
-      </section>
+        <span id="dsr0_badge" class="badge badge-safe">통과</span>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-track"><div class="meter-fill" id="dsr0_meter" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;">
+          <span>0%</span><span style="color:var(--warn)">40%</span><span style="color:var(--danger)">60%</span><span>100%</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div id="dsr0_detail"></div>
     </div>
   </div>
+</div>
 
-  <script>
-    function formatNumber(input) {
-      let value = input.value.replace(/[^0-9]/g, '');
-      input.value = value ? Number(value).toLocaleString() : '';
+<!-- ══════════════ PAGE 1: 전세대출 DSR ══════════════ -->
+<div class="page" id="page1">
+  <div class="card">
+    <div class="card-header">
+      <span>🏠</span>
+      <h2>전세대출 DSR 계산기</h2>
+    </div>
+    <div class="card-tip">
+      <strong>전세자금대출</strong>은 원금·금리 입력 (이자만 반영) | 기존 주담대는 원금·기간·금리 입력 | 기타는 1년 상환액 직접 입력
+    </div>
+
+    <div class="field">
+      <label>연 소득</label>
+      <input type="text" id="dsr1_income" placeholder="예: 80,000,000" oninput="fmtMoney(this)">
+    </div>
+
+    <div class="section-label">대출 현황</div>
+    <div style="overflow-x:auto;">
+    <table class="loan-table">
+      <thead>
+        <tr>
+          <th style="min-width:130px">대출 유형</th>
+          <th style="min-width:120px">원금 (원)</th>
+          <th style="min-width:70px">기간 (년)</th>
+          <th style="min-width:80px">금리 (%)</th>
+          <th style="min-width:120px">연간 상환액</th>
+        </tr>
+      </thead>
+      <tbody id="dsr1_rows"></tbody>
+    </table>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="calcDSR1()">DSR 계산하기</button>
+      <button class="btn btn-ghost" onclick="resetDSR1()">초기화</button>
+    </div>
+
+    <div class="result-box" id="dsr1_result" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+        <div>
+          <div class="result-main" id="dsr1_pct">0.00%</div>
+          <div class="result-label">DSR (총부채원리금상환비율)</div>
+        </div>
+        <span id="dsr1_badge" class="badge badge-safe">통과</span>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-track"><div class="meter-fill" id="dsr1_meter" style="width:0%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;">
+          <span>0%</span><span style="color:var(--warn)">40%</span><span style="color:var(--danger)">60%</span><span>100%</span>
+        </div>
+      </div>
+      <hr class="divider">
+      <div id="dsr1_detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 2: 서울보증 DTI ══════════════ -->
+<div class="page" id="page2">
+  <div class="grid-2">
+    <!-- 서울보증 금융비율 -->
+    <div class="card">
+      <div class="card-header"><span>🏢</span><h2>서울보증 금융비율</h2></div>
+      <div class="field"><label>연 소득</label><input type="text" id="sgi_income" placeholder="예: 30,000,000" oninput="fmtMoney(this)"></div>
+      <div class="section-label">서울보증 대출</div>
+      <div class="field"><label>서울보증 대출 원금</label><input type="text" id="sgi_principal" placeholder="예: 200,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>적용 금리 (%)</label><input type="number" id="sgi_rate" placeholder="예: 4.2" step="0.01"></div>
+      <div class="section-label">기타 부채 (담보+신용 합산)</div>
+      <div class="field"><label>기존 부채 합계</label><input type="text" id="sgi_debt" placeholder="예: 30,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>기존 부채 금리 (%)</label><input type="number" id="sgi_debt_rate" placeholder="예: 4.0" step="0.01"></div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="calcSGI()">계산</button></div>
+      <div class="result-box" id="sgi_result" style="display:none">
+        <div class="result-main" id="sgi_pct">0.00%</div>
+        <div class="result-label">서울보증 금융비율</div>
+        <hr class="divider">
+        <div id="sgi_detail"></div>
+      </div>
+    </div>
+
+    <!-- 서울보증 DTI -->
+    <div class="card">
+      <div class="card-header"><span>📉</span><h2>서울보증 DTI 계산기</h2></div>
+      <div class="field"><label>연 소득</label><input type="text" id="dti_income" placeholder="예: 60,000,000" oninput="fmtMoney(this)"></div>
+      <div class="section-label">신규 주택담보대출 (실행예정)</div>
+      <div class="field"><label>대출 원금</label><input type="text" id="dti_p" placeholder="예: 200,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>대출 기간 (년)</label><input type="number" id="dti_y" placeholder="예: 40"></div>
+      <div class="field"><label>금리 (%)</label><input type="number" id="dti_r" placeholder="예: 4.0" step="0.01"></div>
+      <div class="section-label">기존 부채</div>
+      <div class="field"><label>기존 부채 합계</label><input type="text" id="dti_debt" placeholder="예: 480,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>기존 부채 금리 (%)</label><input type="number" id="dti_debt_r" placeholder="예: 5.0" step="0.01"></div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="calcDTI()">계산</button></div>
+      <div class="result-box" id="dti_result" style="display:none">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+          <div>
+            <div class="result-main" id="dti_pct">0.00%</div>
+            <div class="result-label">DTI</div>
+          </div>
+          <span id="dti_badge" class="badge">-</span>
+        </div>
+        <div class="meter-wrap">
+          <div class="meter-track"><div class="meter-fill" id="dti_meter" style="width:0%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:4px;"><span>0%</span><span style="color:var(--warn)">40%</span><span>100%</span></div>
+        </div>
+        <hr class="divider">
+        <div id="dti_detail"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 3: 신DTI ══════════════ -->
+<div class="page" id="page3">
+  <div class="card">
+    <div class="card-header"><span>📐</span><h2>신DTI 계산기</h2></div>
+    <div class="card-tip">주택담보대출 원리금 합산 방식. 주담대 최대 3건까지 입력 가능.</div>
+    <div class="field"><label>연 소득</label><input type="text" id="ndti_income" placeholder="예: 70,000,000" oninput="fmtMoney(this)"></div>
+    <div class="section-label">주택담보대출 1 (신규 실행예정)</div>
+    <div class="grid-3">
+      <div class="field"><label>원금</label><input type="text" id="ndti_p1" placeholder="예: 240,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>기간 (년)</label><input type="number" id="ndti_y1" placeholder="40"></div>
+      <div class="field"><label>금리 (%)</label><input type="number" id="ndti_r1" placeholder="4.7" step="0.01"></div>
+    </div>
+    <div class="section-label">주택담보대출 2 (기보유)</div>
+    <div class="grid-3">
+      <div class="field"><label>원금</label><input type="text" id="ndti_p2" placeholder="예: 100,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>기간 (년)</label><input type="number" id="ndti_y2" placeholder="25"></div>
+      <div class="field"><label>금리 (%)</label><input type="number" id="ndti_r2" placeholder="4.7" step="0.01"></div>
+    </div>
+    <div class="section-label">주택담보대출 3 (기보유)</div>
+    <div class="grid-3">
+      <div class="field"><label>원금</label><input type="text" id="ndti_p3" placeholder="예: 50,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>기간 (년)</label><input type="number" id="ndti_y3" placeholder="20"></div>
+      <div class="field"><label>금리 (%)</label><input type="number" id="ndti_r3" placeholder="4.7" step="0.01"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-gold" onclick="calcNDTI()">신DTI 계산</button><button class="btn btn-ghost" onclick="resetNDTI()">초기화</button></div>
+    <div class="result-box" id="ndti_result" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+        <div>
+          <div class="result-main" id="ndti_pct">0.00%</div>
+          <div class="result-label">신DTI</div>
+        </div>
+        <span id="ndti_badge" class="badge">-</span>
+      </div>
+      <div class="meter-wrap">
+        <div class="meter-track"><div class="meter-fill" id="ndti_meter" style="width:0%"></div></div>
+      </div>
+      <hr class="divider">
+      <div id="ndti_detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 4: 채권할인비용 ══════════════ -->
+<div class="page" id="page4">
+  <div class="card" style="max-width:520px">
+    <div class="card-header"><span>🔗</span><h2>채권할인비용 계산기</h2></div>
+    <div class="note">
+      국민주택채권이란? 정부가 주택도시기금의 부담으로 발행한 채권으로, 등기를 신청하는 자는 매입 의무가 있습니다. (주택도시기금법 제8조 제1항 제2호)<br>
+      ⚠️ 채권 할인율은 <strong>매일 변동</strong>합니다. 주택도시기금 사이트에서 당일 할인율을 조회하여 입력하세요. 정확한 비용은 잔금일 기준으로 결정됩니다.
+    </div>
+    <div class="field"><label>대출 신청금액 (원)</label><input type="text" id="bond_amount" placeholder="예: 100,000,000" oninput="fmtMoney(this)"></div>
+    <div class="field"><label>채권 할인율 (%)</label><input type="number" id="bond_rate" placeholder="예: 8.205" step="0.001" value="8.205"></div>
+    <div class="btn-row"><button class="btn btn-gold" onclick="calcBond()">계산하기</button></div>
+    <div class="result-box" id="bond_result" style="display:none">
+      <div id="bond_detail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 5: 주택보증 한도/보증료 ══════════════ -->
+<div class="page" id="page5">
+  <div class="grid-2">
+    <!-- 대출한도 -->
+    <div class="card">
+      <div class="card-header"><span>📋</span><h2>주택보증 대출한도</h2></div>
+      <div class="note">1년 미만 재직자는 연봉 환산 입력. 4대보험 중 건강보험 포함 3개 미만 가입 시 최대 3천만원 인정.</div>
+      <div class="field" style="margin-top:12px"><label>연 소득</label><input type="text" id="hg_income" placeholder="예: 100,000,000" oninput="fmtMoney(this)"></div>
+      <div class="field"><label>기존 부채 합계 (담보+신용)</label><input type="text" id="hg_debt" placeholder="예: 300,000,000" oninput="fmtMoney(this)"></div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="calcHGLimit()">한도 계산</button></div>
+      <div class="result-box" id="hg_limit_result" style="display:none">
+        <table class="info-table" style="width:100%">
+          <thead><tr><th>구분</th><th>대출한도</th></tr></thead>
+          <tbody id="hg_limit_rows"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 보증료 -->
+    <div class="card">
+      <div class="card-header"><span>💰</span><h2>주택보증 보증료</h2></div>
+      <div class="note">보증금액 4억 초과~5억 이하: 0.14% | 5억 초과: 0.2% (수기 계산)<br>1주택 보유자로 부부합산 소득 7천만원 초과 시 할증보증료 적용.</div>
+      <div class="field" style="margin-top:12px"><label>대출 신청금액 (원)</label><input type="text" id="hg_loan" placeholder="예: 300,000,000" oninput="fmtMoney(this); calcHGFee()"></div>
+      <div class="field">
+        <label>구분</label>
+        <select id="hg_fee_type" onchange="calcHGFee()">
+          <option value="normal">일반 보증료</option>
+          <option value="surcharge">할증 보증료 (1주택+합산소득 7천만원 초과)</option>
+          <option value="special">다자녀·신혼부부·전자계약·장애인·다문화·합산소득2500이하무주택</option>
+        </select>
+      </div>
+      <div class="btn-row"><button class="btn btn-gold" onclick="calcHGFee()">계산</button></div>
+      <div class="result-box" id="hg_fee_result" style="display:none">
+        <div id="hg_fee_detail"></div>
+      </div>
+      <div style="margin-top:16px">
+        <div class="section-label">보증금액 구간별 요율</div>
+        <table class="info-table">
+          <thead><tr><th>보증금액 구간</th><th>일반</th><th>할증(+0.2%)</th><th>우대</th></tr></thead>
+          <tbody>
+            <tr><td>1억 이하</td><td>0.06%</td><td>0.26%</td><td>0.02%</td></tr>
+            <tr><td>1억 초과 ~ 2억 이하</td><td>0.08%</td><td>0.28%</td><td>0.02%</td></tr>
+            <tr><td>2억 초과 ~ 3억 이하</td><td>0.10%</td><td>0.30%</td><td>0.02%</td></tr>
+            <tr><td>3억 초과 ~ 4억 이하</td><td>0.12%</td><td>0.32%</td><td>0.02%</td></tr>
+            <tr><td>4억 초과 ~ 5억 이하</td><td colspan="3" style="color:var(--warn)">0.14% (수기 계산)</td></tr>
+            <tr><td>5억 초과</td><td colspan="3" style="color:var(--danger)">0.20% (수기 계산)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 6: 도시보증 보증료 ══════════════ -->
+<div class="page" id="page6">
+  <div class="card" style="max-width:600px">
+    <div class="card-header"><span>🏙️</span><h2>도시보증공사 보증료 계산기</h2></div>
+    <div class="card-tip">
+      산정된 금액은 <strong>2년치 보증료</strong>입니다.<br>
+      추가 할인: 전자계약 3% / 모범납세자 10% / 인터넷·모바일보증 3% / 일시납 할인 3%(1년 초과분) / 부채비율 60%이하 10%<br>
+      선순위 채권(선임차포함)이 주택시세의 50% 초과 시 10% 할증 (수기 계산)
+    </div>
+    <div class="field"><label>반환보증 가입금액 (원)</label><input type="text" id="hug_insure" placeholder="예: 200,000,000" oninput="fmtMoney(this)"></div>
+    <div class="field"><label>대출 신청금액 (원)</label><input type="text" id="hug_loan" placeholder="예: 160,000,000" oninput="fmtMoney(this)"></div>
+    <div class="btn-row"><button class="btn btn-gold" onclick="calcHUG()">보증료 계산</button></div>
+    <div class="result-box" id="hug_result" style="display:none">
+      <div id="hug_detail"></div>
+    </div>
+    <div style="margin-top:20px">
+      <div class="section-label">취약계층 우대 안내</div>
+      <div class="note">
+        <strong>50% 우대</strong> (중복우대 불가)<br>
+        ① 미성년자 자녀 3인 이상 (태아 포함, 임신진단서 첨부)<br>
+        ② 다문화·장애인·유공자 가구 (행정복지센터 증명서)<br>
+        ③ 고령자(만65세) 또는 노부모봉양 (1년이상 세대구성)<br>
+        ④ 혼인기간 7년 이내 신혼 / 합산소득 6천만원 이하 (결혼예정자 포함)<br><br>
+        <strong>60% 우대</strong> (중복우대 불가)<br>
+        ① 합산소득 5천만원 이하<br>
+        ② 한부모가정 (한부모가족증명서)<br>
+        ③ 만65세 단독세대주
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 7: 장래소득 환산 ══════════════ -->
+<div class="page" id="page7">
+  <div class="card">
+    <div class="card-header"><span>📈</span><h2>장래소득 반영 환산표</h2></div>
+    <div class="card-tip">연령과 대출기간에 따라 장래소득을 반영하여 소득을 상향 인정할 수 있습니다.</div>
+    <div class="field" style="max-width:300px"><label>현재 연 소득 입력</label><input type="text" id="age_income" placeholder="예: 80,000,000" oninput="fmtMoney(this); calcAgeTable()"></div>
+    <div class="grid-2" style="margin-top:12px">
+      <div>
+        <div class="section-label">일반 대출자</div>
+        <table class="age-table" id="age_general">
+          <thead><tr><th>연령</th><th>현재 소득</th><th>25~29년</th><th>30년 이상</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div>
+        <div class="section-label">청년 · 신혼부부</div>
+        <table class="age-table" id="age_youth">
+          <thead><tr><th>연령</th><th>현재 소득</th><th>25~29년</th><th>30년 이상</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="note" style="margin-top:8px">청년·신혼부부 연소득 입력란 별도. 예시 기준값: 86,000,000원 적용.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+
+<script>
+/* ─── Utils ─── */
+function fmtMoney(el){
+  let v=el.value.replace(/[^0-9]/g,'');
+  if(v) el.value=Number(v).toLocaleString('ko-KR');
+  else el.value='';
+}
+function parseMoney(v){return Number((v||'').toString().replace(/[^0-9]/g,''))||0;}
+function pctN(v,d=2){return v.toFixed(d)+'%';}
+function won(v){return Math.round(v).toLocaleString('ko-KR')+'원';}
+
+function setMeter(id,pct){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const p=Math.min(pct,100);
+  el.style.width=p+'%';
+  el.style.background= p<40?'var(--safe)':p<60?'var(--warn)':'var(--danger)';
+}
+
+/* ─── Tab ─── */
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+  document.querySelectorAll('.page').forEach((p,idx)=>p.classList.toggle('active',idx===i));
+}
+
+/* ─── DSR 대출 유형 정의 ─── */
+const DSR_TYPES_MORTGAGE=[
+  {key:'주담대1',  label:'주택담보 (추가예정)',          mode:'annuity'},
+  {key:'주담대2',  label:'주택담보2 (기보유)',           mode:'annuity'},
+  {key:'주담대3',  label:'주택담보3 (기보유)',           mode:'annuity'},
+  {key:'신용',     label:'신용대출',                    mode:'credit'},   // (원금/5)+이자
+  {key:'중도금',   label:'이주비·중도금',               mode:'interim'},  // (원금/25)+이자
+  {key:'전세1',    label:'전세·보험·예적금담보 1',      mode:'interest'},
+  {key:'전세2',    label:'전세·보험·예적금담보 2',      mode:'interest'},
+  {key:'전세3',    label:'전세·보험·예적금담보 3',      mode:'interest'},
+  {key:'전보담',   label:'전세보증금담보',               mode:'jeonse_g'}, // (원금/4)+이자
+  {key:'비주택',   label:'비주택담보 (지급보증·상가·토지)',mode:'nonhouse'}, // (원금/8)+이자
+  {key:'기타',     label:'기타 (차할부·리스·학자금·카드론)',mode:'direct'},
+];
+const DSR_TYPES_JEONSE=[
+  {key:'전세대출', label:'전세자금대출',                 mode:'interest'}, // 이자만
+  {key:'주담대2',  label:'주택담보2 (기보유)',           mode:'annuity'},
+  {key:'주담대3',  label:'주택담보3 (기보유)',           mode:'annuity'},
+  {key:'신용',     label:'신용대출',                    mode:'credit'},
+  {key:'중도금',   label:'이주비·중도금',               mode:'interim'},
+  {key:'전세1',    label:'전세·보험·예적금담보 1',      mode:'interest'},
+  {key:'전세2',    label:'전세·보험·예적금담보 2',      mode:'interest'},
+  {key:'전세3',    label:'전세·보험·예적금담보 3',      mode:'interest'},
+  {key:'전보담',   label:'전세보증금담보',               mode:'jeonse_g'},
+  {key:'비주택',   label:'비주택담보',                  mode:'nonhouse'},
+  {key:'기타',     label:'기타 (차할부·리스·학자금·카드론)',mode:'direct'},
+];
+
+// 연간 상환액 계산 (엑셀 수식 그대로: 연단위 원리금균등)
+function annualPayment(P,r,y,mode){
+  if(P<=0) return 0;
+  switch(mode){
+    case 'annuity': // P*r*(1+r)^y / ((1+r)^y - 1)  [엑셀 수식]
+      if(y<=0||r<=0) return 0;
+      const pow=Math.pow(1+r,y);
+      return P*r*pow/(pow-1);
+    case 'credit':  return (P/5)+(P*r);
+    case 'interim': return (P/25)+(P*r);
+    case 'interest':return P*r;
+    case 'jeonse_g':return (P/4)+(P*r);
+    case 'nonhouse':return (P/8)+(P*r);
+    case 'direct':  return P; // 직접입력 — P가 연간상환액
+    default: return 0;
+  }
+}
+
+function buildDSRRows(tbodyId, types){
+  const tb=document.getElementById(tbodyId);
+  tb.innerHTML='';
+  types.forEach(t=>{
+    const tr=document.createElement('tr');
+    tr.className='loan-row';
+    const needYear= t.mode==='annuity';
+    const needRate= t.mode!=='direct';
+    const isDirect= t.mode==='direct';
+    tr.innerHTML=`
+      <td class="type-label">${t.label}</td>
+      <td><input type="text" placeholder="${isDirect?'1년 상환액':'원금'}" id="${tbodyId}_${t.key}_p" oninput="fmtMoney(this)"></td>
+      <td><input type="number" placeholder="${needYear?'년':'-'}" id="${tbodyId}_${t.key}_y" ${!needYear?'readonly style="background:var(--bg);color:var(--text3)"':''}></td>
+      <td><input type="number" placeholder="${needRate?'%':'-'}" id="${tbodyId}_${t.key}_r" step="0.01" ${!needRate?'readonly style="background:var(--bg);color:var(--text3)"':''}></td>
+      <td><input type="text" readonly id="${tbodyId}_${t.key}_amt" placeholder="자동계산"></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+function calcDSRRows(tbodyId, types){
+  let total=0;
+  const rows=[];
+  types.forEach(t=>{
+    const P=parseMoney(document.getElementById(`${tbodyId}_${t.key}_p`).value);
+    const y=Number(document.getElementById(`${tbodyId}_${t.key}_y`)?.value||0);
+    const r=Number(document.getElementById(`${tbodyId}_${t.key}_r`)?.value||0)/100;
+    const amt=t.mode==='direct'?P:annualPayment(P,r,y,t.mode);
+    if(amt>0){
+      const amtEl=document.getElementById(`${tbodyId}_${t.key}_amt`);
+      if(amtEl) amtEl.value=Math.round(amt).toLocaleString('ko-KR');
+      total+=amt;
+      rows.push({label:t.label,amt});
     }
+  });
+  return {total,rows};
+}
 
-    function getNumber(id) {
-      const val = document.getElementById(id).value.replace(/,/g, '');
-      return parseFloat(val) || 0;
+function resetRows(tbodyId,types){
+  types.forEach(t=>{
+    ['p','y','r','amt'].forEach(f=>{
+      const el=document.getElementById(`${tbodyId}_${t.key}_${f}`);
+      if(el&&!el.readOnly) el.value='';
+      else if(el&&el.readOnly) el.value='';
+    });
+  });
+}
+
+function showDSRResult(income,total,rows,prefix){
+  const dsr=income>0?total/income*100:0;
+  const pctEl=document.getElementById(`${prefix}_pct`);
+  const badge=document.getElementById(`${prefix}_badge`);
+  const meter=`${prefix}_meter`;
+  const detail=document.getElementById(`${prefix}_detail`);
+  const result=document.getElementById(`${prefix}_result`);
+
+  result.style.display='block';
+  pctEl.textContent=pctN(dsr);
+
+  let cls,badgeCls,badgeTxt;
+  if(dsr<=40){cls='result-safe';badgeCls='badge-safe';badgeTxt='DSR 통과 (40% 이하)';}
+  else if(dsr<=60){cls='result-warn';badgeCls='badge-warn';badgeTxt='주의 (40% 초과)';}
+  else{cls='result-danger';badgeCls='badge-danger';badgeTxt='DSR 초과 (60%+)';}
+
+  pctEl.className='result-main '+cls;
+  badge.className='badge '+badgeCls;
+  badge.textContent=badgeTxt;
+  setMeter(meter,dsr);
+
+  let html=`<div class="result-row"><span>연 소득</span><span>${won(income)}</span></div>`;
+  rows.forEach(r=>{ html+=`<div class="result-row"><span>${r.label}</span><span>${won(r.amt)}</span></div>`; });
+  html+=`<div class="result-row total"><span>연간 상환액 합계</span><span>${won(total)}</span></div>`;
+  detail.innerHTML=html;
+}
+
+function calcDSR0(){
+  const income=parseMoney(document.getElementById('dsr0_income').value);
+  if(!income){alert('연 소득을 입력하세요.');return;}
+  const {total,rows}=calcDSRRows('dsr0_rows',DSR_TYPES_MORTGAGE);
+  showDSRResult(income,total,rows,'dsr0');
+}
+function resetDSR0(){
+  document.getElementById('dsr0_income').value='';
+  resetRows('dsr0_rows',DSR_TYPES_MORTGAGE);
+  document.getElementById('dsr0_result').style.display='none';
+}
+
+function calcDSR1(){
+  const income=parseMoney(document.getElementById('dsr1_income').value);
+  if(!income){alert('연 소득을 입력하세요.');return;}
+  const {total,rows}=calcDSRRows('dsr1_rows',DSR_TYPES_JEONSE);
+  showDSRResult(income,total,rows,'dsr1');
+}
+function resetDSR1(){
+  document.getElementById('dsr1_income').value='';
+  resetRows('dsr1_rows',DSR_TYPES_JEONSE);
+  document.getElementById('dsr1_result').style.display='none';
+}
+
+/* ─── 서울보증 금융비율 ─── */
+function calcSGI(){
+  const income=parseMoney(document.getElementById('sgi_income').value);
+  const p=parseMoney(document.getElementById('sgi_principal').value);
+  const r=Number(document.getElementById('sgi_rate').value||0)/100;
+  const debt=parseMoney(document.getElementById('sgi_debt').value);
+  const dr=Number(document.getElementById('sgi_debt_rate').value||0)/100;
+  if(!income){alert('연 소득을 입력하세요.');return;}
+  const sgiAmt=p*r;
+  const debtAmt=debt*dr;
+  const ratio=(sgiAmt+debtAmt)/income*100;
+  const el=document.getElementById('sgi_result');
+  el.style.display='block';
+  const pctEl=document.getElementById('sgi_pct');
+  pctEl.textContent=pctN(ratio);
+  pctEl.className='result-main '+(ratio<=40?'result-safe':ratio<=60?'result-warn':'result-danger');
+  document.getElementById('sgi_detail').innerHTML=`
+    <div class="result-row"><span>연 소득</span><span>${won(income)}</span></div>
+    <div class="result-row"><span>서울보증 이자 (${p>0?(r*100).toFixed(2)+'%':''})</span><span>${won(sgiAmt)}</span></div>
+    <div class="result-row"><span>기존 부채 이자 (${debt>0?(dr*100).toFixed(2)+'%':''})</span><span>${won(debtAmt)}</span></div>
+    <div class="result-row total"><span>합산 이자</span><span>${won(sgiAmt+debtAmt)}</span></div>
+  `;
+}
+
+/* ─── 서울보증 DTI ─── */
+function calcDTI(){
+  const income=parseMoney(document.getElementById('dti_income').value);
+  const p=parseMoney(document.getElementById('dti_p').value);
+  const y=Number(document.getElementById('dti_y').value||0);
+  const r=Number(document.getElementById('dti_r').value||0)/100;
+  const debt=parseMoney(document.getElementById('dti_debt').value);
+  const dr=Number(document.getElementById('dti_debt_r').value||0)/100;
+  if(!income){alert('연 소득을 입력하세요.');return;}
+  const mortAmt=annualPayment(p,r,y,'annuity');
+  const debtInt=debt*dr;
+  const dti=(mortAmt+debtInt)/income*100;
+  document.getElementById('dti_result').style.display='block';
+  const pctEl=document.getElementById('dti_pct');
+  pctEl.textContent=pctN(dti);
+  const badge=document.getElementById('dti_badge');
+  const meter='dti_meter';
+  let cls,bc,bt;
+  if(dti<=40){cls='result-safe';bc='badge-safe';bt='DTI 통과 (40%이하)';}
+  else{cls='result-danger';bc='badge-danger';bt='DTI 초과';}
+  pctEl.className='result-main '+cls;
+  badge.className='badge '+bc;badge.textContent=bt;
+  setMeter(meter,dti);
+  document.getElementById('dti_detail').innerHTML=`
+    <div class="result-row"><span>신규 주담대 원리금</span><span>${won(mortAmt)}</span></div>
+    <div class="result-row"><span>기존 부채 이자</span><span>${won(debtInt)}</span></div>
+    <div class="result-row total"><span>합산</span><span>${won(mortAmt+debtInt)}</span></div>
+    <div class="result-row"><span>연 소득</span><span>${won(income)}</span></div>
+  `;
+}
+
+/* ─── 신DTI ─── */
+function calcNDTI(){
+  const income=parseMoney(document.getElementById('ndti_income').value);
+  if(!income){alert('연 소득을 입력하세요.');return;}
+  const loans=[
+    {label:'주담대1(신규)',p:parseMoney(document.getElementById('ndti_p1').value),y:Number(document.getElementById('ndti_y1').value||0),r:Number(document.getElementById('ndti_r1').value||0)/100},
+    {label:'주담대2(기보유)',p:parseMoney(document.getElementById('ndti_p2').value),y:Number(document.getElementById('ndti_y2').value||0),r:Number(document.getElementById('ndti_r2').value||0)/100},
+    {label:'주담대3(기보유)',p:parseMoney(document.getElementById('ndti_p3').value),y:Number(document.getElementById('ndti_y3').value||0),r:Number(document.getElementById('ndti_r3').value||0)/100},
+  ];
+  let total=0;
+  let detail='';
+  loans.forEach(l=>{
+    const amt=annualPayment(l.p,l.r,l.y,'annuity');
+    if(amt>0){total+=amt;detail+=`<div class="result-row"><span>${l.label}</span><span>${won(amt)}</span></div>`;}
+  });
+  const ndti=total/income*100;
+  document.getElementById('ndti_result').style.display='block';
+  const pctEl=document.getElementById('ndti_pct');
+  pctEl.textContent=pctN(ndti);
+  const badge=document.getElementById('ndti_badge');
+  let cls,bc,bt;
+  if(ndti<=40){cls='result-safe';bc='badge-safe';bt='신DTI 통과';}
+  else if(ndti<=60){cls='result-warn';bc='badge-warn';bt='주의';}
+  else{cls='result-danger';bc='badge-danger';bt='초과';}
+  pctEl.className='result-main '+cls;
+  badge.className='badge '+bc;badge.textContent=bt;
+  setMeter('ndti_meter',ndti);
+  document.getElementById('ndti_detail').innerHTML=
+    detail+
+    `<div class="result-row total"><span>합산 원리금</span><span>${won(total)}</span></div>
+     <div class="result-row"><span>연 소득</span><span>${won(income)}</span></div>`;
+}
+function resetNDTI(){
+  ['ndti_income','ndti_p1','ndti_y1','ndti_r1','ndti_p2','ndti_y2','ndti_r2','ndti_p3','ndti_y3','ndti_r3'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('ndti_result').style.display='none';
+}
+
+/* ─── 채권할인비용 ─── */
+function calcBond(){
+  const amt=parseMoney(document.getElementById('bond_amount').value);
+  const rate=Number(document.getElementById('bond_rate').value||0)/100;
+  if(!amt){alert('대출 신청금액을 입력하세요.');return;}
+  const maxAmt=amt*1.1;
+  const cost=maxAmt*0.01*rate;
+  document.getElementById('bond_result').style.display='block';
+  document.getElementById('bond_detail').innerHTML=`
+    <div class="result-row"><span>대출 신청금액</span><span>${won(amt)}</span></div>
+    <div class="result-row"><span>채권 최고액 (×110%)</span><span>${won(maxAmt)}</span></div>
+    <div class="result-row"><span>채권 할인율</span><span>${(rate*100).toFixed(3)}%</span></div>
+    <div class="result-row total"><span>채권 할인비용 (최고액×1%×할인율)</span><span style="color:var(--danger)">${won(cost)}</span></div>
+  `;
+}
+
+/* ─── 주택보증 대출한도 ─── */
+function calcHGLimit(){
+  const income=parseMoney(document.getElementById('hg_income').value);
+  const debt=parseMoney(document.getElementById('hg_debt').value);
+  if(!income){alert('연 소득을 입력하세요.');return;}
+  const configs=[
+    {label:'일반', mult:3.5},
+    {label:'신혼부부', mult:4.0},
+    {label:'채권보존', mult:4.0},
+    {label:'신혼부부+채권보존', mult:4.5},
+  ];
+  document.getElementById('hg_limit_result').style.display='block';
+  const tbody=document.getElementById('hg_limit_rows');
+  tbody.innerHTML=configs.map(c=>{
+    const limit=income*c.mult - debt/4;
+    return `<tr ${limit<0?'class="highlight"':''}><td>${c.label} (소득×${c.mult} - 부채/4)</td><td style="font-family:'JetBrains Mono',monospace;color:${limit>0?'var(--gold2)':'var(--danger)'}">${won(Math.max(0,limit))}</td></tr>`;
+  }).join('');
+}
+
+/* ─── 주택보증 보증료 ─── */
+function calcHGFee(){
+  const loan=parseMoney(document.getElementById('hg_loan').value);
+  const type=document.getElementById('hg_fee_type').value;
+  if(!loan){document.getElementById('hg_fee_result').style.display='none';return;}
+  const guar=loan*0.9;
+  document.getElementById('hg_fee_result').style.display='block';
+
+  // 구간 분할
+  const brackets=[
+    {max:100000000,  rate:0.0006,  label:'1억 이하'},
+    {max:200000000,  rate:0.0008,  label:'1억초과~2억'},
+    {max:300000000,  rate:0.001,   label:'2억초과~3억'},
+    {max:400000000,  rate:0.0012,  label:'3억초과~4억'},
+  ];
+  const specialRate=0.0002;
+
+  function calcByBrackets(g, addRate){
+    let remain=g, fee=0, detail='';
+    let prev=0;
+    for(const b of brackets){
+      if(remain<=0) break;
+      const chunk=Math.min(remain, b.max-prev);
+      const r=b.rate+(addRate||0);
+      const f=chunk*r;
+      fee+=f;
+      detail+=`<div class="result-row"><span>${b.label} (${(r*100).toFixed(2)}%)</span><span>${won(f)}</span></div>`;
+      remain-=chunk;prev=b.max;
     }
+    if(remain>0){detail+=`<div class="result-row" style="color:var(--warn)"><span>4억 초과분 — 수기 계산 필요</span><span>${won(remain)}</span></div>`;}
+    return {fee, detail};
+  }
 
-    /* DSR 로직 */
-    function addLoanRow() {
-      const tbody = document.getElementById('loanTableBody');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td><input type="text" placeholder="대출명"></td>
-        <td><input type="text" class="amt" onkeyup="formatNumber(this)" placeholder="0"></td>
-        <td><input type="number" class="rate" step="0.1" placeholder="0"></td>
-        <td><input type="number" class="term" placeholder="0"></td>
-        <td><input type="text" class="annualPay" readonly placeholder="-"></td>
-      `;
-      tbody.appendChild(tr);
-    }
+  let html=`<div class="result-row"><span>대출 신청금액</span><span>${won(loan)}</span></div>
+            <div class="result-row"><span>보증금액 (×90%)</span><span>${won(guar)}</span></div>
+            <hr class="divider">`;
+  if(type==='normal'){
+    const {fee,detail}=calcByBrackets(guar,0);
+    html+=detail+`<div class="result-row total"><span>일반 보증료</span><span>${won(fee)}</span></div>`;
+  }else if(type==='surcharge'){
+    const {fee,detail}=calcByBrackets(guar,0.002);
+    html+=detail+`<div class="result-row total"><span>할증 보증료</span><span>${won(fee)}</span></div>`;
+  }else{
+    const fee=guar*specialRate;
+    html+=`<div class="result-row"><span>적용 요율 (0.02%)</span><span>-</span></div>
+           <div class="result-row total"><span>우대 보증료</span><span>${won(fee)}</span></div>`;
+  }
+  document.getElementById('hg_fee_detail').innerHTML=html;
+}
 
-    function calculateDSR() {
-      const income = getNumber('annualIncome');
-      if(income === 0) { alert("소득을 입력하세요"); return; }
-      let totalPay = 0;
-      document.querySelectorAll('#loanTableBody tr').forEach(row => {
-        const p = parseFloat(row.querySelector('.amt').value.replace(/,/g, '')) || 0;
-        const r = (parseFloat(row.querySelector('.rate').value) || 0) / 100 / 12;
-        const n = (parseFloat(row.querySelector('.term').value) || 0) * 12;
-        let pay = 0;
-        if(p > 0 && r > 0 && n > 0) pay = ((p * r * Math.pow(1+r, n)) / (Math.pow(1+r, n)-1)) * 12;
-        else if(p > 0 && n > 0) pay = p / (n/12);
-        row.querySelector('.annualPay').value = Math.round(pay).toLocaleString();
-        totalPay += pay;
-      });
-      const dsr = (totalPay / income) * 100;
-      document.getElementById('totalAnnualPayment').innerText = Math.round(totalPay).toLocaleString() + " 원";
-      document.getElementById('dsrValue').innerText = dsr.toFixed(2) + "%";
-      const b = document.getElementById('dsrBadge');
-      b.className = 'badge ' + (dsr <= 40 ? 'badge-safe' : 'badge-danger');
-      b.innerText = dsr <= 40 ? '안정' : '위험';
-    }
+/* ─── 도시보증 보증료 ─── */
+function calcHUG(){
+  const insure=parseMoney(document.getElementById('hug_insure').value);
+  const loan=parseMoney(document.getElementById('hug_loan').value);
+  if(!insure||!loan){alert('반환보증 가입금액과 대출 신청금액을 모두 입력하세요.');return;}
+  const normal=(loan*0.00031*2)+(insure*0.00128*2);
+  const d50=normal*0.5;
+  const d60=normal*0.4;
+  document.getElementById('hug_result').style.display='block';
+  document.getElementById('hug_detail').innerHTML=`
+    <div class="result-row"><span>반환보증 가입금액</span><span>${won(insure)}</span></div>
+    <div class="result-row"><span>대출 신청금액</span><span>${won(loan)}</span></div>
+    <hr class="divider">
+    <div class="result-row"><span>산출식</span><span style="font-size:11px;color:var(--text2)">(대출×0.031%×2)+(가입금액×0.128%×2)</span></div>
+    <div class="result-row total"><span>일반 보증료 (2년치)</span><span>${won(normal)}</span></div>
+    <div class="result-row"><span>취약계층 50% 우대</span><span style="color:var(--safe)">${won(d50)}</span></div>
+    <div class="result-row"><span>취약계층 60% 우대</span><span style="color:var(--safe)">${won(d60)}</span></div>
+  `;
+}
 
-    function clearDSR() {
-      document.getElementById('annualIncome').value = '';
-      document.getElementById('loanTableBody').innerHTML = '';
-      addLoanRow(); addLoanRow();
-    }
+/* ─── 장래소득 환산표 ─── */
+function calcAgeTable(){
+  const income=parseMoney(document.getElementById('age_income').value)||0;
+  const yIncome=86000000; // 청년 기준 (엑셀 E6값)
 
-    /* SGI DTI 로직 (수정본) */
-    function calculateSGI() {
-      const income = getNumber('sgiIncome');
-      const existInt = getNumber('sgiExistInterest');
-      const loanAmt = getNumber('sgiLoanAmt');
-      const rate = parseFloat(document.getElementById('sgiRate').value) || 0;
+  const ages=[
+    {label:'20~24세', gMult110:true, gMult110_30:true, yMult120:true, yMult120_30:true},
+    {label:'25~29세', gMult110:true, gMult110_30:true, yMult120:true, yMult120_30:true},
+    {label:'30~34세', gMult110:true, gMult110_30:true, yMult120:true, yMult120_30:true},
+    {label:'35~39세', gMult110:true, gMult110_30:'X',  yMult120:true, yMult120_30:'X'},
+  ];
 
-      if(income === 0) { alert("연 소득을 입력해주세요."); return; }
+  function cell(v){
+    if(v==='X') return `<td style="color:var(--danger)">X</td>`;
+    if(v===0)   return `<td style="color:var(--text3)">-</td>`;
+    return `<td style="font-family:'JetBrains Mono',monospace">${Math.round(v).toLocaleString('ko-KR')}</td>`;
+  }
 
-      const newInt = loanAmt * (rate / 100);
-      const totalAnnualPay = existInt + newInt;
-      const dti = (totalAnnualPay / income) * 100;
+  let gHtml='', yHtml='';
+  ages.forEach(a=>{
+    const g25 = income>0 && a.gMult110!==false ? income*1.1 : 0;
+    const g30 = income>0 && a.gMult110_30!=='X' ? income*1.1 : 'X';
+    const y25 = yIncome*1.2;
+    const y30 = a.yMult120_30!=='X' ? yIncome*1.2 : 'X';
+    gHtml+=`<tr><td>${a.label}</td><td style="font-family:'JetBrains Mono',monospace">${income?income.toLocaleString('ko-KR'):'-'}</td>${cell(g25)}${cell(g30)}</tr>`;
+    yHtml+=`<tr><td>${a.label}</td><td style="font-family:'JetBrains Mono',monospace">${yIncome.toLocaleString('ko-KR')}</td>${cell(y25)}${cell(y30)}</tr>`;
+  });
+  document.querySelector('#age_general tbody').innerHTML=gHtml;
+  document.querySelector('#age_youth tbody').innerHTML=yHtml;
+}
 
-      document.getElementById('sgiTotalPayment').innerText = Math.round(totalAnnualPay).toLocaleString() + " 원";
-      const valEl = document.getElementById('sgiValue');
-      valEl.innerText = dti.toFixed(2) + "%";
-
-      const badge = document.getElementById('sgiBadge');
-      const comment = document.getElementById('sgiComment');
-
-      if(dti <= 40) {
-        badge.className = 'badge badge-safe'; badge.innerText = '통과';
-        valEl.className = 'dsr-number dsr-safe';
-        comment.innerHTML = "✅ 승인 가능권입니다. (DTI 40% 이하)";
-      } else {
-        badge.className = 'badge badge-danger'; badge.innerText = '부결';
-        valEl.className = 'dsr-number dsr-danger';
-        const targetIncome = totalAnnualPay / 0.4;
-        comment.innerHTML = `❌ 부결 위험! 40%를 맞추려면 연소득이 최소 <b style="color:var(--danger)">${Math.round(targetIncome).toLocaleString()}원</b> 이상이어야 합니다.`;
-      }
-    }
-
-    function clearSGI() {
-      ['sgiIncome','sgiExistInterest','sgiLoanAmt','sgiRate'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('sgiTotalPayment').innerText = '0 원';
-      document.getElementById('sgiValue').innerText = '0.00%';
-      document.getElementById('sgiComment').innerText = '정보 입력 후 계산해주세요.';
-      document.getElementById('sgiBadge').className = 'badge';
-      document.getElementById('sgiBadge').innerText = '';
-    }
-
-    window.onload = () => { addLoanRow(); addLoanRow(); };
-  </script>
+/* ─── Init ─── */
+buildDSRRows('dsr0_rows', DSR_TYPES_MORTGAGE);
+buildDSRRows('dsr1_rows', DSR_TYPES_JEONSE);
+calcAgeTable();
+</script>
 </body>
 </html>
