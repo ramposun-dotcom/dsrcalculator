@@ -1,0 +1,86 @@
+<div class="two-col">
+  <!-- (왼쪽) DSR 카드: 기존 DSR 카드 내용 그대로 -->
+  <section class="card" id="dsrCard">
+    <!-- ✅ 여기엔 기존 DSR 계산기(연소득/대출테이블/결과) 그대로 넣으세요 -->
+  </section>
+
+  <!-- (오른쪽) DTI 전용 카드 -->
+  <section class="card" id="dtiCard">
+    <div class="card-headline">
+      <div class="card-title">
+        서울보증 DTI 계산기
+        <span class="card-badge">DTI 전용</span>
+      </div>
+      <div class="card-sub">
+        연소득 + 기존부채 + 적용금리 + (주담 실행예정)만으로 DTI를 계산합니다.
+      </div>
+    </div>
+
+    <div class="section-title">1. 기본 입력</div>
+    <div class="panel">
+      <div class="field-row">
+        <div class="field-label">연 소득</div>
+        <div class="field-input"><input type="text" id="dtiIncome" placeholder="예: 80,000,000원"></div>
+        <div class="field-unit">연</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">기존 부채</div>
+        <div class="field-input"><input type="text" id="dtiExistingDebt" placeholder="예: 480,000,000원"></div>
+        <div class="field-unit">원</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">적용금리</div>
+        <div class="field-input"><input type="number" id="dtiSgiRate" min="0" step="0.01" value="5"></div>
+        <div class="field-unit">%</div>
+      </div>
+
+      <p class="hint">
+        · DTI 산식(요청하신 방식): <strong>(주담 연간원리금 + 기존부채×적용금리) ÷ 연소득 × 100</strong><br>
+        · 판정: <strong>40.00%까지 통과</strong>, <strong>40.01%부터 초과</strong>
+      </p>
+    </div>
+
+    <div class="section-title" style="margin-top:12px;">2. 주담 실행예정(입력)</div>
+    <div class="panel">
+      <div class="field-row">
+        <div class="field-label">주담 원금</div>
+        <div class="field-input"><input type="text" id="dtiMortgagePrincipal" placeholder="예: 300,000,000원"></div>
+        <div class="field-unit">원</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">주담 금리</div>
+        <div class="field-input"><input type="number" id="dtiMortgageRate" min="0" step="0.01" placeholder="예: 4.5"></div>
+        <div class="field-unit">%</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label">주담 기간</div>
+        <div class="field-input"><input type="number" id="dtiMortgageYears" min="0" placeholder="예: 30"></div>
+        <div class="field-unit">년</div>
+      </div>
+
+      <p class="hint">· 주담 연간원리금은 <strong>원리금균등</strong> 가정(현재 DSR과 동일 가정)으로 계산</p>
+    </div>
+
+    <div class="controls">
+      <button class="btn-outline" type="button" onclick="clearDTI()">초기화</button>
+      <button class="btn-primary" type="button" onclick="calculateDTIOnly()">DTI 계산하기</button>
+    </div>
+
+    <div class="section-title">3. 결과</div>
+    <div class="results" style="grid-template-columns: minmax(0,1fr);">
+      <div class="result-block">
+        <div class="result-label">
+          서울보증 DTI <span id="dtiBadge" class="badge"></span>
+        </div>
+        <div class="dsr-number" id="dtiValue">0.00%</div>
+        <div class="note" id="dtiComment" style="margin-top:6px;">
+          값을 입력하고 [DTI 계산하기]를 눌러주세요.
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
