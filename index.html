@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DSR 계산기 - by 진마스터</title>
   <style>
     :root {
@@ -31,8 +31,7 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Noto Sans KR", "Segoe UI", system-ui, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(248,250,252,0.9) 0, #f9fafb 40%, #f3f4f6 100%);
+      background: radial-gradient(circle at top left, rgba(248,250,252,0.9) 0, #f9fafb 40%, #f3f4f6 100%);
       color: var(--text-main);
       -webkit-font-smoothing: antialiased;
     }
@@ -53,447 +52,310 @@
       gap: 20px;
     }
 
-    /* Hero 영역 */
     .hero {
       border-radius: 24px;
       padding: 22px 24px;
       background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
       color: #f9fafb;
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 20px;
-      box-shadow:
-        0 24px 50px rgba(15,23,42,0.35);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before,
-    .hero::after {
-      content: "";
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(0);
-      opacity: 0.18;
-      pointer-events: none;
-    }
-
-    .hero::before {
-      width: 260px;
-      height: 260px;
-      background: radial-gradient(circle, #ffffff 0, #bfdbfe 40%, transparent 70%);
-      top: -60px;
-      right: -40px;
-    }
-
-    .hero::after {
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, #f9a8d4 0, transparent 70%);
-      bottom: -60px;
-      left: 40%;
-    }
-
-    .hero-left {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background: rgba(15,23,42,0.25);
-      backdrop-filter: blur(6px);
-      font-size: 11px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      width: fit-content;
-    }
-
-    .hero-pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #22c55e;
+      box-shadow: 0 24px 50px rgba(15,23,42,0.35);
     }
 
     .hero-title {
       font-size: 26px;
       font-weight: 800;
-      letter-spacing: -0.04em;
-      line-height: 1.25;
+      margin: 0 0 10px 0;
     }
 
-    .hero-title span.accent {
-      color: #fefce8;
-      text-shadow: 0 0 18px rgba(15,23,42,0.4);
-    }
-
-    .hero-subtitle {
-      font-size: 13px;
-      color: #e5e7eb;
-      max-width: 440px;
-      line-height: 1.6;
-    }
-
-    .hero-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 11px;
-      color: #e5e7eb;
-      opacity: 0.9;
-    }
-
-    .hero-tag {
-      padding: 3px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(248,250,252,0.4);
-      background: rgba(15,23,42,0.15);
-    }
-
-    .hero-right {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hero-illustration {
-      width: 220px;
-      height: 220px;
-      border-radius: 999px;
-      background:
-        radial-gradient(circle at 30% 20%, #ffffff 0, #e0f2fe 32%, transparent 60%),
-        radial-gradient(circle at 70% 80%, #fee2e2 0, #fecaca 25%, transparent 60%),
-        linear-gradient(135deg, #1d4ed8, #f97316);
-      box-shadow:
-        0 18px 40px rgba(15,23,42,0.40),
-        0 0 0 1px rgba(248,250,252,0.5);
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .hero-illustration-inner {
-      width: 150px;
-      height: 150px;
-      border-radius: 40px;
-      background: rgba(15,23,42,0.75);
-      backdrop-filter: blur(6px);
-      border: 1px solid rgba(248,250,252,0.4);
-      display: grid;
-      grid-template-rows: 1.5fr 1fr;
-      overflow: hidden;
-    }
-
-    .hero-graph {
-      position: relative;
-      padding: 10px;
-      display: flex;
-      align-items: flex-end;
-      gap: 6px;
-    }
-
-    .bar {
-      flex: 1;
-      border-radius: 999px 999px 3px 3px;
-      background: linear-gradient(180deg, #4ade80, #15803d);
-    }
-
-    .bar:nth-child(2) {
-      height: 60%;
-      background: linear-gradient(180deg, #fbbf24, #b45309);
-    }
-
-    .bar:nth-child(3) {
-      height: 85%;
-    }
-
-    .bar:nth-child(1) { height: 35%; }
-
-    .hero-graph-label {
-      position: absolute;
-      top: 6px;
-      left: 10px;
-      font-size: 10px;
-      color: #e5e7eb;
-      opacity: 0.85;
-    }
-
-    .hero-bottom {
-      border-top: 1px solid rgba(148,163,184,0.4);
-      padding: 6px 10px 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      justify-content: center;
-    }
-
-    .hero-bottom-main {
-      font-size: 12px;
-      color: #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .hero-bottom-main strong {
-      font-size: 14px;
-      color: #fefce8;
-    }
-
-    .hero-bottom-sub {
-      font-size: 10px;
-      color: #9ca3af;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* Calculator 카드 */
     .card {
-      margin-top: 4px;
       border-radius: 20px;
       background: var(--card-bg);
-      box-shadow:
-        0 18px 40px rgba(15,23,42,0.08),
-        0 0 0 1px rgba(148,163,184,0.20);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.08);
       border: 1px solid rgba(148,163,184,0.20);
-      padding: 18px 20px 16px;
-    }
-
-    .card-headline {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 10px;
-      gap: 10px;
-    }
-
-    .card-title {
-      font-size: 16px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .card-badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid rgba(129,140,248,0.5);
-    }
-
-    .card-sub {
-      font-size: 12px;
-      color: var(--text-sub);
+      padding: 20px;
     }
 
     .section-title {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 600;
-      margin-bottom: 6px;
-      color: var(--text-main);
-    }
-
-    .section-desc {
-      font-size: 11px;
-      color: var(--text-sub);
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.2fr);
-      gap: 18px;
-      margin-bottom: 14px;
-    }
-
-    .panel {
-      background: #f9fafb;
-      border-radius: 12px;
-      padding: 10px 12px;
-      border: 1px solid #e5e7eb;
+      margin: 15px 0 8px 0;
     }
 
     .field-row {
       display: flex;
-      align-items: center;
       gap: 10px;
-      margin-bottom: 8px;
-      flex-wrap: wrap;
+      margin-bottom: 10px;
+      align-items: center;
     }
 
     .field-label {
-      min-width: 86px;
-      font-size: 12px;
-      color: var(--text-main);
-      font-weight: 500;
+      min-width: 100px;
+      font-size: 13px;
     }
 
     .field-input {
       flex: 1;
-      min-width: 0;
     }
 
     .field-input input {
       width: 100%;
-      padding: 7px 9px;
-      border-radius: 999px;
+      padding: 8px 12px;
+      border-radius: 8px;
       border: 1px solid #d4d4dd;
       font-size: 13px;
-      background-color: #ffffff;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
-    }
-
-    .field-input input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(79,70,229,0.18);
-      background-color: #ffffff;
-    }
-
-    .field-unit {
-      font-size: 11px;
-      color: var(--text-sub);
-      min-width: 70px;
-      text-align: right;
-    }
-
-    .hint {
-      font-size: 11px;
-      color: var(--text-sub);
-      line-height: 1.5;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 11.5px;
-      margin-top: 4px;
-    }
-
-    thead {
-      background: #f3f4f6;
+      margin: 15px 0;
     }
 
     th, td {
-      padding: 5px 6px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 8px;
+      border: 1px solid #e5e7eb;
       text-align: center;
     }
 
     th {
+      background: #f3f4f6;
       font-weight: 600;
-      color: #374151;
-    }
-
-    tbody tr:last-child td {
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #f9fafb;
     }
 
     td input {
       width: 100%;
-      padding: 4px 6px;
-      border-radius: 8px;
+      padding: 6px;
       border: 1px solid #d4d4dd;
-      font-size: 11.5px;
-      background: #ffffff;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    td input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(79,70,229,0.16);
-    }
-
-    td input[readonly] {
-      background-color: #f3f4f6;
-      color: #4b5563;
-    }
-
-    .loan-name-input {
-      text-align: left;
+      border-radius: 4px;
     }
 
     .controls {
       display: flex;
+      gap: 10px;
       justify-content: flex-end;
-      gap: 8px;
-      margin-top: 8px;
+      margin-top: 15px;
     }
 
     button {
-      cursor: pointer;
-      border-radius: 999px;
+      padding: 8px 16px;
+      border-radius: 8px;
       border: none;
-      font-size: 11.5px;
+      cursor: pointer;
+      font-size: 13px;
       font-weight: 500;
-      padding: 6px 12px;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      letter-spacing: 0.01em;
-      transition: transform 0.05s ease, box-shadow 0.1s ease, background-color 0.1s ease;
-    }
-
-    button:active {
-      transform: scale(0.98);
     }
 
     .btn-primary {
       background: var(--accent);
-      color: #ffffff;
-      box-shadow: 0 6px 14px rgba(79,70,229,0.35);
-    }
-
-    .btn-primary:hover {
-      background: #4338ca;
+      color: white;
     }
 
     .btn-outline {
-      background: #ffffff;
-      color: var(--text-main);
+      background: white;
       border: 1px solid #d4d4dd;
     }
 
-    .btn-outline:hover {
-      background: #f3f4f6;
-      transform: translateY(-1px);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      color: var(--text-sub);
-      border: 1px solid #e5e7eb;
-    }
-
-    .btn-ghost:hover {
-      background: #f9fafb;
-    }
-
     .results {
-      margin-top: 12px;
       display: grid;
-      grid-template-columns: 0.95fr 0.75fr 0.75fr 1.4fr;
-      gap
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+      padding: 15px;
+      background: #f9fafb;
+      border-radius: 12px;
+    }
+
+    .result-label {
+      font-size: 12px;
+      color: var(--text-sub);
+      margin-bottom: 5px;
+    }
+
+    .result-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .dsr-number {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .dsr-safe { color: var(--safe); }
+    .dsr-warning { color: var(--warning); }
+    .dsr-danger { color: var(--danger); }
+
+    @media (max-width: 768px) {
+      .page { padding: 15px 10px; }
+      .results { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <!-- Hero -->
+      <section class="hero">
+        <h1 class="hero-title">DSR 계산기</h1>
+        <p style="margin: 0; font-size: 14px;">연 소득과 대출 정보를 입력하여 DSR을 계산하세요.</p>
+      </section>
+
+      <!-- Calculator -->
+      <section class="card">
+        <div class="section-title">1. 소득 입력</div>
+        
+        <div class="field-row">
+          <div class="field-label">연 소득</div>
+          <div class="field-input">
+            <input type="text" id="annualIncome" placeholder="예: 80000000">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-label">기존 부채(합산)</div>
+          <div class="field-input">
+            <input type="text" id="existingDebt" placeholder="예: 480000000">
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field-label">서울보증 적용금리</div>
+          <div class="field-input">
+            <input type="number" id="sgiRate" value="5" step="0.1">
+          </div>
+        </div>
+
+        <div class="section-title">2. 대출 정보 입력</div>
+        
+        <table>
+          <thead>
+            <tr>
+              <th>대출 종류</th>
+              <th>대출 원금</th>
+              <th>연 이자율(%)</th>
+              <th>기간(년)</th>
+              <th>연간 상환액</th>
+            </tr>
+          </thead>
+          <tbody id="loanTableBody"></tbody>
+        </table>
+
+        <div class="controls">
+          <button class="btn-outline" onclick="addLoanRow()">+ 행 추가</button>
+          <button class="btn-outline" onclick="exportToExcel()">📊 엑셀</button>
+          <button class="btn-outline" onclick="clearAll()">초기화</button>
+          <button class="btn-primary" onclick="calculateDSR()">계산하기</button>
+        </div>
+
+        <div class="section-title">3. 결과</div>
+        
+        <div class="results">
+          <div>
+            <div class="result-label">총 연간 상환액</div>
+            <div class="result-value" id="totalAnnualPayment">0원</div>
+          </div>
+          <div>
+            <div class="result-label">DSR</div>
+            <div class="dsr-number" id="dsrValue">0.00%</div>
+          </div>
+          <div>
+            <div class="result-label">서울보증 DTI</div>
+            <div class="dsr-number" id="sgiDtiValue">0.00%</div>
+          </div>
+          <div>
+            <div class="result-label">진단</div>
+            <div class="result-value" id="dsrComment">계산 버튼을 눌러주세요</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const defaultLoans = [
+      "주택담보대출 1", "주택담보대출 2", "신용대출 1", 
+      "신용대출 2", "전세자금대출"
+    ];
+
+    function parseMoney(str) {
+      if (!str) return 0;
+      return Number(str.toString().replace(/[^0-9]/g, '') || 0);
+    }
+
+    function formatNumber(num) {
+      return Math.round(num).toLocaleString('ko-KR');
+    }
+
+    function createLoanRow(name = '') {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" value="${name}" placeholder="대출 종류"></td>
+        <td><input type="text" placeholder="원금"></td>
+        <td><input type="number" placeholder="이자율" step="0.01"></td>
+        <td><input type="number" placeholder="기간"></td>
+        <td><input type="text" readonly placeholder="자동계산"></td>
+      `;
+      return tr;
+    }
+
+    function addLoanRow(name = '') {
+      document.getElementById('loanTableBody').appendChild(createLoanRow(name));
+    }
+
+    function initDefaultRows() {
+      const tbody = document.getElementById('loanTableBody');
+      tbody.innerHTML = '';
+      defaultLoans.forEach(label => addLoanRow(label));
+    }
+
+    function calcAnnualPayment(principal, annualRate, years) {
+      if (principal <= 0 || years <= 0) return 0;
+      if (annualRate === 0) return principal / years;
+      const pow = Math.pow(1 + annualRate, years);
+      return principal * annualRate * pow / (pow - 1);
+    }
+
+    function calculateDSR() {
+      const annualIncome = parseMoney(document.getElementById('annualIncome').value);
+      const existingDebt = parseMoney(document.getElementById('existingDebt').value);
+      const sgiRate = Number(document.getElementById('sgiRate').value) / 100;
+
+      const rows = document.querySelectorAll('#loanTableBody tr');
+      let totalAnnualPayment = 0;
+      let plannedMortgageAnnualPayment = 0;
+
+      rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        const loanName = inputs[0].value.trim();
+        const principal = parseMoney(inputs[1].value);
+        const rate = Number(inputs[2].value) / 100;
+        const years = Number(inputs[3].value);
+
+        const annualPayment = calcAnnualPayment(principal, rate, years);
+        inputs[4].value = annualPayment > 0 ? formatNumber(annualPayment) + '원' : '';
+        
+        totalAnnualPayment += annualPayment;
+        
+        if (loanName.includes('주택담보')) {
+          plannedMortgageAnnualPayment += annualPayment;
+        }
+      });
+
+      document.getElementById('totalAnnualPayment').textContent = formatNumber(totalAnnualPayment) + '원';
+
+      let dsr = 0;
+      if (annualIncome > 0) {
+        dsr = (totalAnnualPayment / annualIncome) * 100;
+      }
+
+      const dsrEl = document.getElementById('dsrValue');
+      dsrEl.textContent = dsr.toFixed(2) + '%';
+      dsrEl.className = 'dsr-number';
+      
+      if (dsr < 30) dsrEl.classList.add('dsr-safe');
+      else if (dsr < 40) dsrEl.classList.add('dsr-warning');
+      else dsrEl.classList.add('dsr-danger');
+
+      let sgiDti = 0;
+      if (annualIncome > 0) {
+        sgiDti = ((plannedMortgageAnnualPayment + (existingDebt * sgiRate)) / annualIncome) * 100;
+      }
