@@ -350,7 +350,6 @@
 
       <div class="two-col">
 
-        <!-- ===================== (왼쪽) DSR ===================== -->
         <section class="card" id="dsrCard">
           <div class="card-headline">
             <h2 class="card-title">
@@ -425,7 +424,6 @@
           </p>
         </section>
 
-        <!-- ===================== (오른쪽) 서울보증 DTI 전용 ===================== -->
         <section class="card" id="dtiCard">
           <div class="card-headline">
             <h2 class="card-title">
@@ -453,7 +451,7 @@
               <div class="field-unit">원</div>
             </div>
 
-            <div class="field-row">
+            <div class="field-row" style="margin-bottom: 0;">
               <div class="field-label">서울보증 적용금리</div>
               <div class="field-input">
                 <input type="number" id="dtiSgiRate" min="0" step="0.01" value="5" />
@@ -461,40 +459,9 @@
               <div class="field-unit">%</div>
             </div>
 
-            <p class="hint">
-              · 산식(요청 방식): <strong>(주담 연간원리금 + 기존부채×적용금리) ÷ 연소득 × 100</strong><br />
-              · 판정: <strong>40.00%까지 통과</strong>, <strong>40.01%부터 초과</strong> (소수점 2자리 반올림)
-            </p>
-          </div>
-
-          <div class="section-title">2. 주담 실행예정 입력</div>
-          <div class="panel">
-            <div class="field-row">
-              <div class="field-label">주담 원금</div>
-              <div class="field-input">
-                <input type="text" id="dtiMortgagePrincipal" placeholder="예: 300,000,000원" />
-              </div>
-              <div class="field-unit">원</div>
-            </div>
-
-            <div class="field-row">
-              <div class="field-label">주담 금리</div>
-              <div class="field-input">
-                <input type="number" id="dtiMortgageRate" min="0" step="0.01" placeholder="예: 4.5" />
-              </div>
-              <div class="field-unit">%</div>
-            </div>
-
-            <div class="field-row" style="margin-bottom: 0;">
-              <div class="field-label">주담 기간</div>
-              <div class="field-input">
-                <input type="number" id="dtiMortgageYears" min="0" placeholder="예: 30" />
-              </div>
-              <div class="field-unit">년</div>
-            </div>
-
             <p class="hint" style="margin-top: 8px;">
-              · 주담 연간원리금은 <strong>원리금균등(월 기준 연환산)</strong>으로 계산합니다.
+              · 산식: <strong>(기존부채 × 적용금리) ÷ 연소득 × 100</strong><br />
+              · 판정: <strong>40.00%까지 통과</strong>, <strong>40.01%부터 초과</strong> (소수점 2자리 반올림)
             </p>
           </div>
 
@@ -503,7 +470,7 @@
             <button class="btn-primary" type="button" onclick="calculateDTIOnly()">DTI 계산하기</button>
           </div>
 
-          <div class="section-title">3. 결과</div>
+          <div class="section-title">2. 결과</div>
           <div class="results results-one">
             <div class="result-block">
               <div class="result-label">
@@ -729,10 +696,6 @@
       const existingDebt = parseMoney(document.getElementById("dtiExistingDebt").value);
       const sgiRate = Number(document.getElementById("dtiSgiRate").value || 5) / 100;
 
-      const mPrincipal = parseMoney(document.getElementById("dtiMortgagePrincipal").value);
-      const mRate = Number(document.getElementById("dtiMortgageRate").value || 0) / 100;
-      const mYears = Number(document.getElementById("dtiMortgageYears").value || 0);
-
       const dtiEl = document.getElementById("dtiValue");
       const badgeEl = document.getElementById("dtiBadge");
       const commentEl = document.getElementById("dtiComment");
@@ -746,8 +709,8 @@
         return;
       }
 
-      const mortgageAnnual = calcAnnualPayment(mPrincipal, mRate, mYears);
-      const dti = ((mortgageAnnual + (existingDebt * sgiRate)) / income) * 100;
+      // 변경된 DTI 산식: (기존부채 × 적용금리) ÷ 연소득 × 100
+      const dti = ((existingDebt * sgiRate) / income) * 100;
       const rounded = Number(dti.toFixed(2));
 
       dtiEl.textContent = rounded.toFixed(2) + "%";
@@ -772,9 +735,6 @@
       document.getElementById("dtiIncome").value = "";
       document.getElementById("dtiExistingDebt").value = "";
       document.getElementById("dtiSgiRate").value = "5";
-      document.getElementById("dtiMortgagePrincipal").value = "";
-      document.getElementById("dtiMortgageRate").value = "";
-      document.getElementById("dtiMortgageYears").value = "";
 
       const dtiEl = document.getElementById("dtiValue");
       const badgeEl = document.getElementById("dtiBadge");
@@ -791,10 +751,9 @@
       initDefaultRows();
       attachMoneyFormatter(document.getElementById("annualIncome"));
 
-      // ✅ DTI 입력들도 콤마+원 포맷 적용
+      // ✅ DTI 기본 입력 콤마+원 포맷 유지
       attachMoneyFormatter(document.getElementById("dtiIncome"));
       attachMoneyFormatter(document.getElementById("dtiExistingDebt"));
-      attachMoneyFormatter(document.getElementById("dtiMortgagePrincipal"));
     });
   </script>
 </body>
