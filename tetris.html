@@ -41,7 +41,9 @@
   button:hover { transform: translateY(-1px); }
   button:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(91, 74, 107, .22); }
   button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
-  #m1 { background: var(--mint); } #m2 { background: var(--sky); }
+  .startbtns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+  .startbtns button { font-size: 22px; padding: 14px 26px; }
+  .startbtns button[data-mode="1"] { background: var(--mint); } .startbtns button[data-mode="2"] { background: var(--sky); }
   #pauseBtn { background: var(--lav); } #musicBtn { background: var(--pink); }
 
   .stage { position: relative; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; width: 100%; }
@@ -68,6 +70,7 @@
     z-index: 5; pointer-events: none;
   }
   .overlay .msg {
+    pointer-events: auto;
     background: rgba(255, 250, 253, .96); border: 4px solid var(--lav); border-radius: 28px;
     padding: 22px 30px; text-align: center; font-size: 32px; line-height: 1.35;
     box-shadow: 0 10px 0 rgba(91, 74, 107, .15); max-width: 92%;
@@ -92,8 +95,6 @@
   <h1 class="title" aria-label="블록 친구 테트리스"><span>블</span><span>록</span> <span>친</span><span>구</span> <span>테</span><span>트</span><span>리</span><span>스</span></h1>
 
   <div class="toolbar">
-    <button id="m1">혼자 하기</button>
-    <button id="m2">친구와 같이 (2명)</button>
     <button id="pauseBtn">잠깐 멈춤</button>
     <button id="musicBtn">음악 끄기</button>
   </div>
@@ -367,6 +368,7 @@
   const overlay = $('#overlay'), msg = $('#msg');
   let mode = 1, state = 'idle', last = 0, raf = 0;
   const active = () => games.slice(0, mode);
+  const START_BTNS = '<div class="startbtns"><button data-mode="1">혼자 하기</button><button data-mode="2">친구와 같이 (2명)</button></div>';
 
   function show(html) { msg.innerHTML = html; overlay.style.display = html ? 'flex' : 'none'; }
   function setMode(n) {
@@ -399,7 +401,7 @@
       const w = a.score > b.score ? a : b;
       html = `${w.name} 이겼어요!<small>${a.score}점 대 ${b.score}점</small><small>진 친구도 다시 해보자, 응원할게!</small>`;
     }
-    show(html); if (mode === 2) Sound.sfx('win');
+    show(html + START_BTNS); if (mode === 2) Sound.sfx('win');
   }
   function pause(on) {
     if (on && state === 'playing') {
@@ -436,8 +438,10 @@
       e.preventDefault();
       if (state === 'playing') { games[0].act(b.dataset.a); games[0].draw(); }
     }));
-  $('#m1').addEventListener('click', () => start(1));
-  $('#m2').addEventListener('click', () => start(2));
+  msg.addEventListener('click', e => {
+    const b = e.target.closest('button[data-mode]');
+    if (b) start(+b.dataset.mode);
+  });
   $('#pauseBtn').addEventListener('click', () => {
     if (state === 'playing') pause(true); else if (state === 'paused') pause(false);
   });
@@ -451,7 +455,7 @@
 
   // 처음 화면
   setMode(1); games[0].draw();
-  show('테트리스에 온 걸 환영해요!<small>위의 "혼자 하기" 또는 "친구와 같이"를 눌러요</small>');
+  show('테트리스에 온 걸 환영해요!<small>누구랑 할지 골라 봐요</small>' + START_BTNS);
 })();
 </script>
 </body>
