@@ -154,7 +154,7 @@
     L:[[0,0,1],[1,1,1],[0,0,0]],
   };
   const LINE_SCORE = [0, 100, 300, 500, 800];
-  const FACE = '#5b4a6b';
+  const FACE = '#5b4a6b'; // 글씨 색
   const $ = (s, r = document) => r.querySelector(s);
 
   /* ---------- 소리: 신나는 배경음악과 효과음 (웹 오디오로 직접 만듦) ---------- */
@@ -310,8 +310,8 @@
     hudUpdate() {
       this.hud.score.textContent = this.score; this.hud.lines.textContent = this.lines; this.hud.level.textContent = this.level;
     }
-    // 얼굴이 있는 말랑한 블록 한 칸
-    cell(c, x, y, size, color, alpha = 1, face = true) {
+    // 말랑한 블록 한 칸
+    cell(c, x, y, size, color, alpha = 1) {
       const px = x * size, py = y * size, w = size - 2;
       c.globalAlpha = alpha;
       c.fillStyle = color; c.beginPath();
@@ -320,12 +320,6 @@
       c.fillStyle = 'rgba(255,255,255,.45)'; c.beginPath();
       if (c.roundRect) c.roundRect(px + size * .14, py + size * .1, size * .5, size * .13, size * .06); else c.rect(px + size * .14, py + size * .1, size * .5, size * .13);
       c.fill();
-      if (face) {
-        c.fillStyle = FACE; c.strokeStyle = FACE; c.lineWidth = Math.max(1, size * .06);
-        const r = size * .07;
-        c.beginPath(); c.arc(px + size * .35, py + size * .48, r, 0, 7); c.arc(px + size * .65, py + size * .48, r, 0, 7); c.fill();
-        c.beginPath(); c.arc(px + size * .5, py + size * .56, size * .13, .15 * Math.PI, .85 * Math.PI); c.stroke();
-      }
       c.globalAlpha = 1;
     }
     draw() {
