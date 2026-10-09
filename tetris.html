@@ -341,6 +341,7 @@
         c.fillStyle = FACE; c.textAlign = 'center'; c.textBaseline = 'middle';
         c.font = '56px Jua, sans-serif'; c.fillText('끝!', 150, 280);
         c.font = '28px Jua, sans-serif'; c.fillText(this.score + '점', 150, 340);
+        c.font = '24px Jua, sans-serif'; c.fillText('다시 해보자,', 150, 400); c.fillText('응원할게!', 150, 432);
       }
     }
     drawNext() {
@@ -384,11 +385,11 @@
     state = 'done'; Sound.stop();
     const [a, b] = games;
     let html;
-    if (mode === 1) html = `끝났어요!<small>점수 ${a.score}점</small><small>위 버튼으로 다시 해봐요</small>`;
-    else if (a.score === b.score) html = `비겼어요!<small>둘 다 ${a.score}점</small>`;
+    if (mode === 1) html = `끝났어요!<small>점수 ${a.score}점</small><small>다시 해보자, 응원할게!</small>`;
+    else if (a.score === b.score) html = `비겼어요!<small>둘 다 ${a.score}점</small><small>다시 해보자, 응원할게!</small>`;
     else {
       const w = a.score > b.score ? a : b;
-      html = `${w.name} 이겼어요!<small>${a.score}점 대 ${b.score}점</small>`;
+      html = `${w.name} 이겼어요!<small>${a.score}점 대 ${b.score}점</small><small>진 친구도 다시 해보자, 응원할게!</small>`;
     }
     show(html); if (mode === 2) Sound.sfx('win');
   }
