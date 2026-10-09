@@ -42,7 +42,7 @@
   button:active { transform: translateY(4px); box-shadow: 0 1px 0 rgba(91, 74, 107, .22); }
   button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   .startbtns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
-  .startbtns button { font-size: 22px; padding: 14px 26px; }
+  .startbtns button { font-size: 22px; padding: 14px 26px; white-space: nowrap; }
   .startbtns button[data-mode="1"] { background: var(--mint); } .startbtns button[data-mode="2"] { background: var(--sky); }
   #pauseBtn { background: var(--lav); } #musicBtn { background: var(--pink); }
 
@@ -77,6 +77,12 @@
   }
   .overlay small { display: block; font-size: 17px; color: var(--ink-soft); margin-top: 6px; }
 
+  /* 처음 화면: 큰 버튼 두 개만 보임 */
+  body.intro .toolbar, body.intro .player, body.intro .help, body.intro .touch { display: none; }
+  body.intro .overlay { position: static; display: flex !important; }
+  body.intro .overlay .msg { background: none; border: 0; box-shadow: none; padding: 0; }
+  body.intro .startbtns { margin-top: 8px; flex-direction: column; align-items: stretch; }
+  body.intro .startbtns button { font-size: 28px; padding: 22px 40px; }
   .help { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; font-size: 16px; }
   .help div { background: var(--card); border-radius: 18px; padding: 8px 16px; border: 2px solid var(--grid); }
   .help div[hidden] { display: none; }
@@ -368,7 +374,7 @@
   const overlay = $('#overlay'), msg = $('#msg');
   let mode = 1, state = 'idle', last = 0, raf = 0;
   const active = () => games.slice(0, mode);
-  const START_BTNS = '<div class="startbtns"><button data-mode="1">혼자 하기</button><button data-mode="2">친구와 같이 (2명)</button></div>';
+  const START_BTNS = '<div class="startbtns"><button data-mode="1">혼자하기</button><button data-mode="2">친구와 같이</button></div>';
 
   function show(html) { msg.innerHTML = html; overlay.style.display = html ? 'flex' : 'none'; }
   function setMode(n) {
@@ -380,6 +386,7 @@
     setMode(n);
     games.forEach(g => g.reset());
     active().forEach(g => g.draw());
+    document.body.classList.remove('intro');
     show(''); state = 'playing'; $('#pauseBtn').textContent = '잠깐 멈춤';
     Sound.start();
     last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
@@ -455,7 +462,8 @@
 
   // 처음 화면
   setMode(1); games[0].draw();
-  show('테트리스에 온 걸 환영해요!<small>누구랑 할지 골라 봐요</small>' + START_BTNS);
+  document.body.classList.add('intro');
+  show(START_BTNS);
 })();
 </script>
 </body>
