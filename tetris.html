@@ -108,6 +108,7 @@
           <div class="box"><h3>점수</h3><div class="v score">0</div></div>
           <div class="box"><h3>지운 줄</h3><div class="v lines">0</div></div>
           <div class="box"><h3>레벨</h3><div class="v level">1</div></div>
+          <div class="box"><h3>최고 점수</h3><div class="v best">0</div></div>
         </div>
       </div>
     </section>
@@ -120,6 +121,7 @@
           <div class="box"><h3>점수</h3><div class="v score">0</div></div>
           <div class="box"><h3>지운 줄</h3><div class="v lines">0</div></div>
           <div class="box"><h3>레벨</h3><div class="v level">1</div></div>
+          <div class="box"><h3>최고 점수</h3><div class="v best">0</div></div>
         </div>
       </div>
     </section>
@@ -230,11 +232,12 @@
 
   /* ---------- 한 명의 판 ---------- */
   class Game {
-    constructor(el, name) {
-      this.el = el; this.name = name;
+    constructor(el, name, idx) {
+      this.el = el; this.name = name; this.key = 'tetris-best-' + idx;
+      try { this.best = +localStorage.getItem(this.key) || 0; } catch (e) { this.best = 0; }
       this.cv = $('canvas.board', el); this.ctx = this.cv.getContext('2d');
       this.nv = $('canvas.next', el); this.nctx = this.nv.getContext('2d');
-      this.hud = { score: $('.score', el), lines: $('.lines', el), level: $('.level', el) };
+      this.hud = { score: $('.score', el), lines: $('.lines', el), level: $('.level', el), best: $('.best', el) };
       this.reset();
     }
     reset() {
@@ -309,6 +312,11 @@
     }
     hudUpdate() {
       this.hud.score.textContent = this.score; this.hud.lines.textContent = this.lines; this.hud.level.textContent = this.level;
+      if (this.score > this.best) {
+        this.best = this.score;
+        try { localStorage.setItem(this.key, this.best); } catch (e) {}
+      }
+      this.hud.best.textContent = this.best;
     }
     // 말랑한 블록 한 칸
     cell(c, x, y, size, color, alpha = 1) {
@@ -355,7 +363,7 @@
   }
 
   /* ---------- 게임 진행 ---------- */
-  const games = [new Game($('#pl0'), '친구 1'), new Game($('#pl1'), '친구 2')];
+  const games = [new Game($('#pl0'), '친구 1', 0), new Game($('#pl1'), '친구 2', 1)];
   const overlay = $('#overlay'), msg = $('#msg');
   let mode = 1, state = 'idle', last = 0, raf = 0;
   const active = () => games.slice(0, mode);
