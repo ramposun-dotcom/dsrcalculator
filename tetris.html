@@ -7,13 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet"/>
 <style>
-/* 밝은 하늘색 배경, 사탕색 블록, 둥글둥글한 글씨 */
+/* 밝은 하늘색 배경, 사탕색 블록, 둥글둥글한 글씨. 처음 화면에서 혼자하기/같이하기를 고른다 */
 :root{
   color-scheme:light;
   --sky1:#bfe9ff;--sky2:#fff6d6;
   --card:#ffffff;--ink:#3b3a5a;--ink2:#7c7aa0;
-  --pink:#ff7eb6;--yellow:#ffd93d;--blue:#4d96ff;--green:#5fd068;--purple:#b57bff;--orange:#ff9f43;
-  --board:#fffdf6;--grid:#f0e9d2;
+  --pink:#ff7eb6;--pink2:#d9568f;--yellow:#ffd93d;--blue:#4d96ff;--blue2:#2f6fd6;--green:#5fd068;--purple:#b57bff;--orange:#ff9f43;
+  --board:#fffdf6;
   --font:'Jua','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
@@ -24,6 +24,7 @@ body{
   padding:16px;padding-block:20px 32px;
   -webkit-user-select:none;user-select:none;overflow-x:hidden;position:relative;
 }
+[hidden]{display:none!important}
 .cloud{position:fixed;background:#fff;border-radius:999px;opacity:.85;z-index:0;animation:drift 40s linear infinite}
 .cloud::before,.cloud::after{content:"";position:absolute;background:#fff;border-radius:50%}
 .cloud.c1{width:120px;height:34px;top:9%;left:-140px}
@@ -35,16 +36,38 @@ body{
 @keyframes drift{to{transform:translateX(calc(100vw + 340px))}}
 @media(prefers-reduced-motion:reduce){.cloud{animation:none;left:10%}}
 
-main{position:relative;z-index:1;max-width:760px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+main{position:relative;z-index:1;max-width:900px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:16px}
 h1{margin:0;font-weight:400;font-size:clamp(26px,6.5vw,44px);text-align:center;line-height:1.15;text-wrap:balance;letter-spacing:.02em;text-shadow:0 3px 0 rgba(255,255,255,.9)}
 h1 span:nth-child(7n+1){color:#ff6b6b}h1 span:nth-child(7n+2){color:#ff9f43}h1 span:nth-child(7n+3){color:#f2b705}
 h1 span:nth-child(7n+4){color:#4cc35a}h1 span:nth-child(7n+5){color:#3fa9f5}h1 span:nth-child(7n+6){color:#6f7bff}h1 span:nth-child(7n){color:#b57bff}
-.game{display:flex;gap:18px;align-items:flex-start;justify-content:center;flex-wrap:wrap;width:100%}
-.stage{position:relative;border-radius:22px;padding:8px;background:var(--card);box-shadow:0 8px 0 #ffb6d5,0 14px 24px rgba(90,80,140,.2);border:4px solid var(--pink)}
-#board{display:block;height:min(600px,62vh);aspect-ratio:1/2;max-width:calc(100vw - 56px);border-radius:14px;background:var(--board)}
-#overlay{position:absolute;inset:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border-radius:14px;background:rgba(255,255,255,.88);padding:16px}
-#msg{font-size:clamp(24px,5vw,32px);line-height:1.2;color:var(--pink);text-wrap:balance}
-#overlay small{font-size:16px;color:var(--ink2)}
+
+button{font-family:var(--font);cursor:pointer;border:0;border-radius:16px;font-size:20px;padding:12px 18px;color:#fff;touch-action:manipulation}
+button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+button:active{transform:translateY(3px)}
+.b-pink{background:var(--pink);box-shadow:0 5px 0 var(--pink2)}.b-pink:active{box-shadow:0 2px 0 var(--pink2)}
+.b-blue{background:var(--blue);box-shadow:0 5px 0 var(--blue2)}.b-blue:active{box-shadow:0 2px 0 var(--blue2)}
+.b-green{background:var(--green);box-shadow:0 5px 0 #38a842}.b-green:active{box-shadow:0 2px 0 #38a842}
+.b-purple{background:var(--purple);box-shadow:0 5px 0 #8d54e8}.b-purple:active{box-shadow:0 2px 0 #8d54e8}
+
+/* 처음 화면 */
+#menu{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;margin-top:4vh}
+#menu p{margin:0;font-size:20px;color:var(--ink2);text-align:center}
+.modes{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;width:100%}
+.mode{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(100%,280px);padding:26px 18px;font-size:34px;border-radius:26px}
+.mode small{font-size:16px;opacity:.95;line-height:1.4;text-align:center}
+.mode .ico{font-size:52px;line-height:1}
+
+/* 게임 화면 */
+#game{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
+#players{display:flex;gap:18px;align-items:flex-start;justify-content:center;flex-wrap:wrap;width:100%}
+.pl{display:flex;gap:18px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.col{display:flex;flex-direction:column;align-items:center}
+.who{display:none;font-size:24px;text-align:center;color:var(--c)}
+.stage{position:relative;border-radius:22px;padding:8px;background:var(--card);border:4px solid var(--c);box-shadow:0 8px 0 var(--c2),0 14px 24px rgba(90,80,140,.2)}
+.board{display:block;height:min(600px,62vh);aspect-ratio:1/2;max-width:calc(100vw - 56px);border-radius:14px;background:var(--board)}
+.overlay{position:absolute;inset:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border-radius:14px;background:rgba(255,255,255,.88);padding:12px}
+.msg{font-size:clamp(20px,4.5vw,30px);line-height:1.2;color:var(--c);text-wrap:balance}
+.overlay small{font-size:15px;color:var(--ink2)}
 .side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:min(100%,260px)}
 .box{background:var(--card);border-radius:18px;padding:10px 14px;box-shadow:0 5px 0 rgba(90,80,140,.15);border:3px solid transparent}
 .box h3{margin:0;font-size:15px;font-weight:400;color:var(--ink2)}
@@ -53,49 +76,52 @@ h1 span:nth-child(7n+4){color:#4cc35a}h1 span:nth-child(7n+5){color:#3fa9f5}h1 s
 .b-level{border-color:var(--green)}.b-level .v{color:#2fa83a}
 .b-lines{border-color:var(--blue)}.b-lines .v{color:#2f78ea}
 .b-best{border-color:var(--purple)}.b-best .v{color:#8d54e8}
-.wide{grid-column:1/-1}
-.b-next{display:flex;flex-direction:column;align-items:center;border-color:var(--orange)}
-#next{width:100px;height:80px}
-button{font-family:var(--font);cursor:pointer;border:0;border-radius:16px;font-size:20px;padding:12px 16px;color:#fff;touch-action:manipulation}
-button:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
-.big{background:var(--pink);box-shadow:0 5px 0 #d9568f}
-.big:active{transform:translateY(3px);box-shadow:0 2px 0 #d9568f}
-#mute{background:var(--blue);box-shadow:0 5px 0 #2f6fd6;font-size:17px}
-#mute:active{transform:translateY(3px);box-shadow:0 2px 0 #2f6fd6}
-.help{font-size:15px;line-height:1.75;color:var(--ink2);background:rgba(255,255,255,.7);border-radius:16px;padding:10px 14px}
-.pad{display:none;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;margin-top:12px}
-.pad button{background:var(--card);color:var(--ink);font-size:24px;padding:14px 0;box-shadow:0 5px 0 rgba(90,80,140,.2)}
-.pad button:active{transform:translateY(3px)}
+.b-next{display:flex;flex-direction:column;align-items:center;border-color:var(--orange);grid-column:1/-1}
+.next{width:100px;height:80px}
+.pad{display:none;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;margin-top:12px}
+.pad button{background:var(--card);color:var(--ink);font-size:22px;padding:12px 0;box-shadow:0 5px 0 rgba(90,80,140,.2)}
 @media(pointer:coarse){.pad{display:grid}}
-.padwrap{display:flex;flex-direction:column;align-items:center}
+.p0{--c:var(--pink);--c2:#ffb6d5}
+.p1{--c:var(--blue);--c2:#a9c9ff}
+
+/* 같이하기: 두 판을 나란히 */
+.duo .pl{flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:12px;width:fit-content}
+.duo .who{display:block}
+.duo .board{height:min(600px,60vh,calc(100vw - 110px))}
+.duo .side{width:100%}
+.duo .opt{display:none}
+.duo .b-next{grid-column:auto}
+.duo .box .v{font-size:26px}
+
+.ctrl{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.ctrl button{font-size:18px}
+.help{font-size:15px;line-height:1.75;color:var(--ink2);background:rgba(255,255,255,.75);border-radius:16px;padding:10px 16px;max-width:560px;text-align:center}
 </style>
 </head>
 <body>
 <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
 <main>
   <h1 id="title"></h1>
-  <div class="game">
-    <div class="padwrap">
-      <div class="stage">
-        <canvas id="board" width="300" height="600"></canvas>
-        <div id="overlay"><span id="msg">윤소희의 옛날 테트리스</span><small>Enter 키나 시작 버튼을 눌러요!</small></div>
-      </div>
-      <div class="pad">
-        <button data-a="left" aria-label="왼쪽">◀</button><button data-a="rotate" aria-label="돌리기">⟳</button><button data-a="right" aria-label="오른쪽">▶</button>
-        <button data-a="soft" aria-label="아래로">▼</button><button data-a="hard" aria-label="쿵 내리기">⏬</button><button data-a="pause" aria-label="쉬기">⏸</button>
-      </div>
+
+  <section id="menu">
+    <p>어떻게 놀까요?</p>
+    <div class="modes">
+      <button class="mode b-pink" id="solo"><span class="ico">🙋</span>혼자하기<small>나 혼자<br>높은 점수에 도전!</small></button>
+      <button class="mode b-blue" id="duo"><span class="ico">👨‍👧</span>같이하기<small>둘이서 나란히!<br>먼저 꽉 차면 져요</small></button>
     </div>
-    <div class="side">
-      <div class="box b-score"><h3>점수</h3><div class="v" id="score">0</div></div>
-      <div class="box b-level"><h3>레벨</h3><div class="v" id="level">1</div></div>
-      <div class="box b-lines"><h3>지운 줄</h3><div class="v" id="lines">0</div></div>
-      <div class="box b-best"><h3>최고 점수</h3><div class="v" id="best">0</div></div>
-      <div class="box b-next wide"><h3>다음 블록</h3><canvas id="next" width="100" height="80"></canvas></div>
-      <button class="big wide" id="start">시작!</button>
-      <button class="wide" id="mute">🎵 음악 끄기</button>
-      <div class="help wide">← → 움직이기<br>↑ 또는 X 돌리기<br>↓ 천천히 내리기<br>Space 쿵! 내리기<br>P 잠깐 쉬기</div>
+    <button class="b-purple" id="muteMenu">🎵 음악 끄기</button>
+  </section>
+
+  <section id="game" hidden>
+    <div id="players"></div>
+    <div class="ctrl">
+      <button class="b-pink" id="start">시작!</button>
+      <button class="b-green" id="pause">⏸ 잠깐 쉬기</button>
+      <button class="b-purple" id="mute">🎵 음악 끄기</button>
+      <button class="b-blue" id="home">처음으로</button>
     </div>
-  </div>
+    <div class="help" id="help"></div>
+  </section>
 </main>
 <script>
 const COLS=10,ROWS=20,S=30;
@@ -111,17 +137,16 @@ const SHAPES={
 };
 const $=id=>document.getElementById(id);
 $('title').innerHTML=[...'윤소희의 옛날 테트리스'].map(c=>c===' '?' ':'<span>'+c+'</span>').join('');
-const ctx=$('board').getContext('2d'),nctx=$('next').getContext('2d');
-let grid,piece,nextType,bag=[],score,lines,level=1,over,paused,running=false,dropAcc,last,best=0,sparks=[];
+
+let mode=0;            // 0 처음 화면, 1 혼자하기, 2 같이하기
+let players=[],running=false,paused=false,over=false,last=0,raf=0,seq=[],best=0,musicLevel=1;
 try{best=+localStorage.getItem('tetrisBest')||0}catch(e){}
-$('best').textContent=best;
 
 /* ---------- 소리: 신나는 배경음악(코로베이니키 느낌)과 효과음 ---------- */
 const Sound=(()=>{
   let ac,master,noise,timer,step=0,nextT=0,muted=false;
   try{muted=localStorage.getItem('tetrisMuted')==='1'}catch(e){}
   const hz=m=>440*Math.pow(2,(m-69)/12);
-  // [음, 길이(8분음표 단위)]
   const A=[[76,2],[71,1],[72,1],[74,2],[72,1],[71,1],[69,2],[69,1],[72,1],[76,2],[74,1],[72,1],[71,3],[72,1],[74,2],[76,2],[72,2],[69,2],[69,4]];
   const B=[[74,3],[77,1],[81,2],[79,1],[77,1],[76,3],[72,1],[76,2],[74,1],[72,1],[71,2],[71,1],[72,1],[74,2],[76,2],[72,2],[69,2],[69,4]];
   const mel=[];[...A,...B].forEach(([n,d])=>{mel.push({n,d});for(let i=1;i<d;i++)mel.push(null)});
@@ -146,7 +171,7 @@ const Sound=(()=>{
     g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+.05);
     s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+.06);
   }
-  const unit=()=>Math.max(.07,.115-(level-1)*.005);
+  const unit=()=>Math.max(.07,.115-(musicLevel-1)*.005);
   function schedule(){
     while(nextT<ac.currentTime+.15){
       const u=unit(),m=mel[step];
@@ -161,7 +186,7 @@ const Sound=(()=>{
     stop(){clearInterval(timer);timer=null},
     pause(){clearInterval(timer);timer=null;if(ac&&ac.suspend)ac.suspend()},
     resume(){if(!ac)return;ac.resume&&ac.resume();if(!timer){nextT=ac.currentTime+.05;timer=setInterval(schedule,25)}},
-    toggle(){init();muted=!muted;if(master)master.gain.value=muted?0:.5;try{localStorage.setItem('tetrisMuted',muted?'1':'0')}catch(e){};return muted},
+    toggle(){init();muted=!muted;if(master)master.gain.value=muted?0:.5;try{localStorage.setItem('tetrisMuted',muted?'1':'0')}catch(e){}},
     get muted(){return muted},
     sfx(kind){
       if(!ac||muted)return;const t=ac.currentTime;
@@ -170,74 +195,21 @@ const Sound=(()=>{
       else if(kind==='drop')tone(160,t,.12,'triangle',.25);
       else if(kind==='clear')[523,659,784,1047,1319].forEach((f,i)=>tone(f,t+i*.07,.18,'square',.08));
       else if(kind==='over')[523,440,349,262].forEach((f,i)=>tone(f,t+i*.2,.3,'triangle',.18));
+      else if(kind==='win')[523,659,784,1047,784,1047,1319].forEach((f,i)=>tone(f,t+i*.12,.2,'square',.08));
     }
   };
 })();
-function syncMuteLabel(){$('mute').textContent=Sound.muted?'🔇 음악 켜기':'🎵 음악 끄기'}
+function syncMuteLabel(){const t=Sound.muted?'🔇 음악 켜기':'🎵 음악 끄기';$('mute').textContent=t;$('muteMenu').textContent=t}
 syncMuteLabel();
 
-/* ---------- 게임 ---------- */
-function rand(){
-  if(!bag.length){bag=Object.keys(SHAPES);for(let i=bag.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[bag[i],bag[j]]=[bag[j],bag[i]]}}
-  return bag.pop();
-}
-function spawn(){
-  const t=nextType||rand();nextType=rand();
-  const m=SHAPES[t].map(r=>r.slice());
-  piece={t,m,x:(COLS-m[0].length)/2|0,y:0};
-  if(collide(piece.m,piece.x,piece.y)){endGame()}
-  drawNext();
-}
-function collide(m,px,py){
-  for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++){
-    if(!m[y][x])continue;
-    const nx=px+x,ny=py+y;
-    if(nx<0||nx>=COLS||ny>=ROWS)return true;
-    if(ny>=0&&grid[ny][nx])return true;
+/* ---------- 블록 순서: 같이하기에서는 두 사람이 같은 순서로 받는다 ---------- */
+function pieceAt(i){
+  while(seq.length<=i){
+    const bag=Object.keys(SHAPES);
+    for(let k=bag.length-1;k>0;k--){const j=Math.random()*(k+1)|0;[bag[k],bag[j]]=[bag[j],bag[k]]}
+    seq.push(...bag);
   }
-  return false;
-}
-function rotateM(m){return m[0].map((_,i)=>m.map(r=>r[i]).reverse())}
-function move(dx){if(!collide(piece.m,piece.x+dx,piece.y)){piece.x+=dx;Sound.sfx('move');return true}return false}
-function rotate(){
-  const r=rotateM(piece.m);
-  for(const k of [0,-1,1,-2,2]){
-    if(!collide(r,piece.x+k,piece.y)){piece.m=r;piece.x+=k;Sound.sfx('rotate');return}
-  }
-}
-function burst(row){
-  const cols=Object.values(COLORS);
-  for(let i=0;i<24;i++)sparks.push({x:Math.random()*300,y:row*S+15,vx:(Math.random()-.5)*5,vy:-Math.random()*4-1,life:1,c:cols[i%7]});
-}
-function lock(){
-  piece.m.forEach((row,y)=>row.forEach((v,x)=>{
-    if(v&&piece.y+y>=0)grid[piece.y+y][piece.x+x]=piece.t;
-  }));
-  let cleared=0;
-  for(let y=ROWS-1;y>=0;y--){
-    if(grid[y].every(c=>c)){burst(y);grid.splice(y,1);grid.unshift(Array(COLS).fill(0));cleared++;y++}
-  }
-  if(cleared){
-    score+=[0,100,300,500,800][cleared]*level;
-    lines+=cleared;
-    level=1+(lines/10|0);
-    updateHUD();Sound.sfx('clear');
-  }else Sound.sfx('drop');
-  spawn();
-}
-function softDrop(){
-  if(!collide(piece.m,piece.x,piece.y+1)){piece.y++;return true}
-  lock();return false;
-}
-function hardDrop(){
-  let n=0;
-  while(!collide(piece.m,piece.x,piece.y+1)){piece.y++;n++}
-  score+=n*2;updateHUD();lock();
-}
-function ghostY(){let y=piece.y;while(!collide(piece.m,piece.x,y+1))y++;return y}
-function updateHUD(){
-  $('score').textContent=score;$('level').textContent=level;$('lines').textContent=lines;
-  if(score>best){best=score;$('best').textContent=best;try{localStorage.setItem('tetrisBest',best)}catch(e){}}
+  return seq[i];
 }
 function rr(c,x,y,w,h,r){c.beginPath();if(c.roundRect)c.roundRect(x,y,w,h,r);else c.rect(x,y,w,h)}
 function cell(c,x,y,t,a=1,s=S){
@@ -248,76 +220,229 @@ function cell(c,x,y,t,a=1,s=S){
   c.strokeStyle='rgba(0,0,0,.16)';c.lineWidth=2;rr(c,px,py,w,w,s*.28);c.stroke();
   c.globalAlpha=1;
 }
-function draw(){
-  ctx.clearRect(0,0,300,600);
-  ctx.strokeStyle='#f0e9d2';ctx.lineWidth=1;
-  for(let i=1;i<COLS;i++){ctx.beginPath();ctx.moveTo(i*S,0);ctx.lineTo(i*S,600);ctx.stroke()}
-  for(let i=1;i<ROWS;i++){ctx.beginPath();ctx.moveTo(0,i*S);ctx.lineTo(300,i*S);ctx.stroke()}
-  grid.forEach((r,y)=>r.forEach((t,x)=>t&&cell(ctx,x,y,t)));
-  if(piece&&!over){
-    const gy=ghostY();
-    piece.m.forEach((r,y)=>r.forEach((v,x)=>v&&cell(ctx,piece.x+x,gy+y,piece.t,.25)));
-    piece.m.forEach((r,y)=>r.forEach((v,x)=>v&&cell(ctx,piece.x+x,piece.y+y,piece.t)));
+const rotateM=m=>m[0].map((_,i)=>m.map(r=>r[i]).reverse());
+
+/* ---------- 플레이어 한 명의 판 ---------- */
+class Player{
+  constructor(i,root){
+    this.i=i;this.root=root;
+    this.c=root.querySelector('.board').getContext('2d');
+    this.nc=root.querySelector('.next').getContext('2d');
+    this.ov=root.querySelector('.overlay');
+    this.reset();
   }
-  sparks=sparks.filter(p=>p.life>0);
-  sparks.forEach(p=>{
-    p.x+=p.vx;p.y+=p.vy;p.vy+=.2;p.life-=.025;
-    ctx.globalAlpha=Math.max(p.life,0);ctx.fillStyle=p.c;ctx.fillRect(p.x-4,p.y-4,8,8);
-  });
-  ctx.globalAlpha=1;
+  q(s){return this.root.querySelector(s)}
+  reset(){
+    this.grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+    this.score=0;this.lines=0;this.level=1;this.dropAcc=0;this.pos=0;
+    this.dead=false;this.sparks=[];this.piece=null;this.nextT=null;
+    this.hud();
+  }
+  say(t,sub){this.q('.msg').textContent=t;this.ov.querySelector('small').textContent=sub||'';this.ov.hidden=false}
+  hideMsg(){this.ov.hidden=true}
+  hud(){
+    this.q('.sc').textContent=this.score;this.q('.lv').textContent=this.level;this.q('.ln').textContent=this.lines;
+    if(mode===1&&this.score>best){best=this.score;try{localStorage.setItem('tetrisBest',best)}catch(e){}}
+    this.q('.bs').textContent=best;
+  }
+  spawn(){
+    const t=this.nextT||pieceAt(this.pos++);
+    this.nextT=pieceAt(this.pos++);
+    const m=SHAPES[t].map(r=>r.slice());
+    this.piece={t,m,x:(COLS-m[0].length)/2|0,y:0};
+    if(this.collide(this.piece.m,this.piece.x,this.piece.y)){this.dead=true;gameOver(this.i)}
+    this.drawNext();
+  }
+  collide(m,px,py){
+    for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++){
+      if(!m[y][x])continue;
+      const nx=px+x,ny=py+y;
+      if(nx<0||nx>=COLS||ny>=ROWS)return true;
+      if(ny>=0&&this.grid[ny][nx])return true;
+    }
+    return false;
+  }
+  move(dx){const p=this.piece;if(!this.collide(p.m,p.x+dx,p.y)){p.x+=dx;Sound.sfx('move')}}
+  rotate(){
+    const p=this.piece,r=rotateM(p.m);
+    for(const k of [0,-1,1,-2,2]){
+      if(!this.collide(r,p.x+k,p.y)){p.m=r;p.x+=k;Sound.sfx('rotate');return}
+    }
+  }
+  burst(row){
+    const cols=Object.values(COLORS);
+    for(let i=0;i<24;i++)this.sparks.push({x:Math.random()*300,y:row*S+15,vx:(Math.random()-.5)*5,vy:-Math.random()*4-1,life:1,c:cols[i%7]});
+  }
+  lock(){
+    const p=this.piece;
+    p.m.forEach((row,y)=>row.forEach((v,x)=>{if(v&&p.y+y>=0)this.grid[p.y+y][p.x+x]=p.t}));
+    let cleared=0;
+    for(let y=ROWS-1;y>=0;y--){
+      if(this.grid[y].every(c=>c)){this.burst(y);this.grid.splice(y,1);this.grid.unshift(Array(COLS).fill(0));cleared++;y++}
+    }
+    if(cleared){
+      this.score+=[0,100,300,500,800][cleared]*this.level;
+      this.lines+=cleared;
+      this.level=1+(this.lines/10|0);
+      musicLevel=Math.max(...players.map(q=>q.level));
+      this.hud();Sound.sfx('clear');
+    }else Sound.sfx('drop');
+    this.spawn();
+  }
+  softDrop(){
+    const p=this.piece;
+    if(!this.collide(p.m,p.x,p.y+1)){p.y++;return true}
+    this.lock();return false;
+  }
+  hardDrop(){
+    const p=this.piece;let n=0;
+    while(!this.collide(p.m,p.x,p.y+1)){p.y++;n++}
+    this.score+=n*2;this.hud();this.lock();
+  }
+  ghostY(){const p=this.piece;let y=p.y;while(!this.collide(p.m,p.x,y+1))y++;return y}
+  tick(dt){
+    this.dropAcc+=dt;
+    const interval=Math.max(80,800-(this.level-1)*70);
+    while(this.dropAcc>=interval&&running&&!this.dead){this.dropAcc-=interval;this.softDrop()}
+  }
+  act(a){
+    if(this.dead)return;
+    if(a==='left')this.move(-1);
+    else if(a==='right')this.move(1);
+    else if(a==='rotate')this.rotate();
+    else if(a==='soft'){if(this.softDrop()){this.score++;this.hud()}this.dropAcc=0}
+    else if(a==='hard')this.hardDrop();
+  }
+  draw(){
+    const c=this.c;
+    c.clearRect(0,0,300,600);
+    c.strokeStyle='#f0e9d2';c.lineWidth=1;
+    for(let i=1;i<COLS;i++){c.beginPath();c.moveTo(i*S,0);c.lineTo(i*S,600);c.stroke()}
+    for(let i=1;i<ROWS;i++){c.beginPath();c.moveTo(0,i*S);c.lineTo(300,i*S);c.stroke()}
+    this.grid.forEach((r,y)=>r.forEach((t,x)=>t&&cell(c,x,y,t)));
+    const p=this.piece;
+    if(p&&!this.dead){
+      const gy=this.ghostY();
+      p.m.forEach((r,y)=>r.forEach((v,x)=>v&&cell(c,p.x+x,gy+y,p.t,.25)));
+      p.m.forEach((r,y)=>r.forEach((v,x)=>v&&cell(c,p.x+x,p.y+y,p.t)));
+    }
+    this.sparks=this.sparks.filter(s=>s.life>0);
+    this.sparks.forEach(s=>{
+      s.x+=s.vx;s.y+=s.vy;s.vy+=.2;s.life-=.025;
+      c.globalAlpha=Math.max(s.life,0);c.fillStyle=s.c;c.fillRect(s.x-4,s.y-4,8,8);
+    });
+    c.globalAlpha=1;
+  }
+  drawNext(){
+    const c=this.nc;c.clearRect(0,0,100,80);
+    const m=SHAPES[this.nextT],s=20,ox=(100-m[0].length*s)/2/s,oy=(80-m.length*s)/2/s;
+    m.forEach((r,y)=>r.forEach((v,x)=>{if(v)cell(c,ox+x,oy+y,this.nextT,1,s)}));
+  }
 }
-function drawNext(){
-  nctx.clearRect(0,0,100,80);
-  const m=SHAPES[nextType],s=20,ox=(100-m[0].length*s)/2/s,oy=(80-m.length*s)/2/s;
-  m.forEach((r,y)=>r.forEach((v,x)=>{if(v)cell(nctx,ox+x,oy+y,nextType,1,s)}));
+
+/* ---------- 화면 만들기 ---------- */
+const NAMES=['1P (분홍)','2P (파랑)'];
+function playerHTML(i,n){
+  return `<div class="pl p${i}">
+    <div class="who">${NAMES[i]}</div>
+    <div class="col">
+      <div class="stage"><canvas class="board" width="300" height="600"></canvas>
+        <div class="overlay"><span class="msg"></span><small></small></div></div>
+      <div class="pad">
+        <button data-p="${i}" data-a="left" aria-label="왼쪽">◀</button><button data-p="${i}" data-a="rotate" aria-label="돌리기">⟳</button><button data-p="${i}" data-a="right" aria-label="오른쪽">▶</button>
+        <button data-p="${i}" data-a="soft" aria-label="아래로">▼</button><button data-p="${i}" data-a="hard" aria-label="쿵 내리기">⏬</button>
+      </div>
+    </div>
+    <div class="side">
+      <div class="box b-score"><h3>점수</h3><div class="v sc">0</div></div>
+      <div class="box b-level opt"><h3>레벨</h3><div class="v lv">1</div></div>
+      <div class="box b-lines opt"><h3>지운 줄</h3><div class="v ln">0</div></div>
+      <div class="box b-best opt"><h3>최고 점수</h3><div class="v bs">0</div></div>
+      <div class="box b-next"><h3>다음 블록</h3><canvas class="next" width="100" height="80"></canvas></div>
+    </div>
+  </div>`;
 }
-function showOverlay(t,sub){$('msg').textContent=t;$('overlay').querySelector('small').textContent=sub;$('overlay').style.display='flex'}
-function endGame(){over=true;running=false;Sound.stop();Sound.sfx('over');showOverlay('앗! 게임 끝!','Enter 키나 시작 버튼으로 다시 해요')}
-function start(){
-  grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
-  score=0;lines=0;level=1;over=false;paused=false;dropAcc=0;bag=[];nextType=null;sparks=[];
-  updateHUD();spawn();
-  $('overlay').style.display='none';
+const HELP={
+  1:'← → 움직이기 · ↑ 돌리기 · ↓ 천천히 내리기 · Space 쿵! 내리기 · P 쉬기<br>(W A S D 키로도 할 수 있어요)',
+  2:'<b style="color:#e0559a">1P 분홍</b>: A D 움직이기 · W 돌리기 · S 천천히 · Space 쿵!<br><b style="color:#2f6fd6">2P 파랑</b>: ← → 움직이기 · ↑ 돌리기 · ↓ 천천히 · Enter 쿵!<br>P 쉬기 · 먼저 꽉 차는 사람이 져요'
+};
+function enter(m){
+  mode=m;
+  $('menu').hidden=true;$('game').hidden=false;
+  const n=m===2?2:1;
+  $('players').className=m===2?'duo':'';
+  $('players').innerHTML=Array.from({length:n},(_,i)=>playerHTML(i,n)).join('');
+  players=Array.from({length:n},(_,i)=>new Player(i,$('players').children[i]));
+  players.forEach(p=>{p.say('준비!','시작 버튼을 눌러요');p.draw()});
+  $('help').innerHTML=HELP[m];
+  running=false;paused=false;over=false;musicLevel=1;
+}
+function goHome(){
+  running=false;paused=false;Sound.stop();
+  $('game').hidden=true;$('menu').hidden=false;mode=0;
+}
+function startGame(){
+  seq=[];over=false;paused=false;musicLevel=1;
+  players.forEach(p=>{p.reset();p.hideMsg();p.spawn()});
   Sound.start();
-  if(!running){running=true;last=performance.now();requestAnimationFrame(loop)}
+  running=true;last=performance.now();
+  if(!raf)raf=requestAnimationFrame(loop);
+}
+function gameOver(loser){
+  if(over)return;
+  over=true;running=false;Sound.stop();
+  if(mode===1){Sound.sfx('over');players[0].say('앗! 게임 끝!','시작 버튼으로 다시 해요')}
+  else{
+    Sound.sfx('win');
+    players.forEach(p=>p.i===loser?p.say('앗! 졌어요','다시 해봐요'):p.say('이겼어요! 🎉','대단해요!'));
+  }
+  players.forEach(p=>p.draw());
 }
 function togglePause(){
   if(!running)return;
   paused=!paused;
-  if(paused){Sound.pause();showOverlay('잠깐 쉬는 중','P 키나 버튼으로 계속해요')}
-  else{$('overlay').style.display='none';last=performance.now();Sound.resume()}
+  if(paused){Sound.pause();players.forEach(p=>p.say('잠깐 쉬는 중','P 키나 버튼으로 계속해요'))}
+  else{players.forEach(p=>p.hideMsg());last=performance.now();Sound.resume()}
 }
 function loop(t){
+  raf=0;
   if(!running)return;
   if(!paused){
-    dropAcc+=t-last;
-    const interval=Math.max(80,800-(level-1)*70);
-    while(dropAcc>=interval&&running){dropAcc-=interval;softDrop()}
-    draw();
+    const dt=t-last;
+    players.forEach(p=>{if(running)p.tick(dt)});
+    players.forEach(p=>p.draw());
   }
   last=t;
-  requestAnimationFrame(loop);
+  if(running)raf=requestAnimationFrame(loop);
 }
-function act(a){
-  if(a==='start'){if(!running)start();return}
-  if(a==='pause'){togglePause();return}
-  if(!running||paused)return;
-  if(a==='left')move(-1);
-  else if(a==='right')move(1);
-  else if(a==='rotate')rotate();
-  else if(a==='soft'){if(softDrop()){score++;updateHUD()}dropAcc=0}
-  else if(a==='hard')hardDrop();
-  draw();
+function act(i,a){
+  if(!running||paused||!players[i])return;
+  players[i].act(a);players[i].draw();
 }
+
+/* ---------- 조작 (한글 입력 상태여도 되도록 키의 위치(code)로 읽는다) ---------- */
+const KEYS={
+  1:{ArrowLeft:[0,'left'],KeyA:[0,'left'],ArrowRight:[0,'right'],KeyD:[0,'right'],ArrowUp:[0,'rotate'],KeyW:[0,'rotate'],KeyX:[0,'rotate'],ArrowDown:[0,'soft'],KeyS:[0,'soft'],Space:[0,'hard']},
+  2:{KeyA:[0,'left'],KeyD:[0,'right'],KeyW:[0,'rotate'],KeyS:[0,'soft'],Space:[0,'hard'],
+     ArrowLeft:[1,'left'],ArrowRight:[1,'right'],ArrowUp:[1,'rotate'],ArrowDown:[1,'soft'],Enter:[1,'hard']}
+};
 document.addEventListener('keydown',e=>{
-  const map={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'rotate',x:'rotate',X:'rotate',ArrowDown:'soft',' ':'hard',p:'pause',P:'pause',Enter:'start'};
-  const a=map[e.key];
-  if(a){e.preventDefault();act(a)}
+  if(!mode)return;
+  const c=e.code;
+  if(c==='KeyP'){e.preventDefault();togglePause();return}
+  if(c==='Enter'&&!running){e.preventDefault();startGame();return}
+  const k=KEYS[mode][c];
+  if(k){e.preventDefault();act(k[0],k[1])}
 });
-document.querySelectorAll('[data-a]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.a)));
-$('start').addEventListener('click',()=>{start();$('start').blur()});
-$('mute').addEventListener('click',()=>{Sound.toggle();syncMuteLabel();$('mute').blur()});
-grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));draw();
+$('players').addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(b)act(+b.dataset.p,b.dataset.a);
+});
+$('solo').addEventListener('click',()=>enter(1));
+$('duo').addEventListener('click',()=>enter(2));
+$('start').addEventListener('click',()=>{startGame();$('start').blur()});
+$('pause').addEventListener('click',()=>{togglePause();$('pause').blur()});
+$('home').addEventListener('click',goHome);
+[$('mute'),$('muteMenu')].forEach(b=>b.addEventListener('click',()=>{Sound.toggle();syncMuteLabel();b.blur()}));
 </script>
 </body>
 </html>
