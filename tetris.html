@@ -11,7 +11,7 @@
   /* 레이아웃: 위에 제목과 버튼, 가운데에 한 명 또는 두 명의 판, 아래에 조작법 */
   :root {
     color-scheme: light;
-    --bg1: #ffeef6; --bg2: #e6f3ff;
+    --bg1: #8fd3ff; --bg2: #e4f6ff; --cloud: #ffffff;
     --ink: #5b4a6b; --ink-soft: #8a7a99;
     --card: #fffafd; --board: #fff7fb; --grid: #f1dff0;
     --pink: #ffa3b8; --mint: #a9e8bd; --sky: #9fd6f7; --sun: #ffe58f; --lav: #d6b8ff;
@@ -21,7 +21,7 @@
   html, body { margin: 0; }
   body {
     min-height: 100vh; color: var(--ink); font-family: var(--font);
-    background: var(--bg1) linear-gradient(160deg, var(--bg1), var(--bg2));
+    background: var(--bg1) linear-gradient(180deg, var(--bg1) 0%, #bfe6ff 50%, var(--bg2) 100%) fixed;
     padding: 20px 16px 28px; overflow-x: hidden;
   }
   .page { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; }
@@ -32,6 +32,18 @@
   .title span:nth-child(5n+4) { color: #5fb4ec; }
   .title span:nth-child(5n+5) { color: #b184f0; }
 
+  /* 하늘 배경: 구름이 천천히 흘러감 */
+  .sky { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+  .cloud {
+    position: absolute; left: 0; top: var(--y); width: var(--w); height: calc(var(--w) * .38);
+    background: var(--cloud); border-radius: 999px; opacity: .92;
+    animation: drift var(--t) linear var(--d) infinite;
+  }
+  .cloud::before, .cloud::after { content: ""; position: absolute; background: var(--cloud); border-radius: 50%; }
+  .cloud::before { width: 48%; height: 120%; left: 14%; top: -50%; }
+  .cloud::after { width: 38%; height: 90%; right: 12%; top: -32%; }
+  @keyframes drift { from { transform: translateX(-100%); } to { transform: translateX(100vw); } }
+  .page { position: relative; z-index: 1; }
   .toolbar { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   button {
     font-family: var(--font); font-size: 18px; color: var(--ink); cursor: pointer;
@@ -93,10 +105,18 @@
   .touch { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 400px; }
   .touch button { padding: 16px 0; font-size: 24px; background: var(--card); }
   @media (pointer: coarse) { .touch { display: grid; } .help { display: none; } }
-  @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { button { transition: none; } .cloud { animation: none; left: 12%; } }
 </style>
 </head>
 <body>
+<div class="sky" aria-hidden="true">
+  <div class="cloud" style="--y:8%;--w:170px;--t:38s;--d:-5s"></div>
+  <div class="cloud" style="--y:20%;--w:120px;--t:52s;--d:-28s"></div>
+  <div class="cloud" style="--y:38%;--w:200px;--t:44s;--d:-14s"></div>
+  <div class="cloud" style="--y:58%;--w:140px;--t:60s;--d:-40s"></div>
+  <div class="cloud" style="--y:74%;--w:180px;--t:48s;--d:-22s"></div>
+  <div class="cloud" style="--y:88%;--w:110px;--t:56s;--d:-8s"></div>
+</div>
 <div class="page">
   <h1 class="title" aria-label="블록 친구 테트리스"><span>블</span><span>록</span> <span>친</span><span>구</span> <span>테</span><span>트</span><span>리</span><span>스</span></h1>
 
