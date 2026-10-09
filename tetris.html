@@ -49,13 +49,12 @@ button:active{transform:translateY(3px)}
 .b-green{background:var(--green);box-shadow:0 5px 0 #38a842}.b-green:active{box-shadow:0 2px 0 #38a842}
 .b-purple{background:var(--purple);box-shadow:0 5px 0 #8d54e8}.b-purple:active{box-shadow:0 2px 0 #8d54e8}
 
-/* 처음 화면 */
-#menu{display:flex;flex-direction:column;align-items:center;gap:18px;width:100%;margin-top:4vh}
-#menu p{margin:0;font-size:20px;color:var(--ink2);text-align:center}
-.modes{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;width:100%}
-.mode{display:flex;flex-direction:column;align-items:center;gap:6px;width:min(100%,280px);padding:26px 18px;font-size:34px;border-radius:26px}
-.mode small{font-size:16px;opacity:.95;line-height:1.4;text-align:center}
-.mode .ico{font-size:52px;line-height:1}
+/* 처음 화면: 판 위에 혼자하기/같이하기 버튼이 뜬다 */
+.pick{display:flex;flex-direction:column;gap:14px;width:100%;align-items:stretch}
+.pick p{margin:0 0 2px;font-size:22px;color:var(--ink)}
+.pick button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:28px;padding:16px 8px;border-radius:22px}
+.overlay .pick small{font-size:14px;color:#fff;opacity:.95}
+.pick .ico{font-size:34px;line-height:1}
 
 /* 게임 화면 */
 #game{display:flex;flex-direction:column;align-items:center;gap:16px;width:100%}
@@ -67,8 +66,8 @@ button:active{transform:translateY(3px)}
 .board{display:block;height:min(600px,62vh);aspect-ratio:1/2;max-width:calc(100vw - 56px);border-radius:14px;background:var(--board)}
 .overlay{position:absolute;inset:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border-radius:14px;background:rgba(255,255,255,.88);padding:12px}
 .msg{font-size:clamp(20px,4.5vw,30px);line-height:1.2;color:var(--c);text-wrap:balance}
-.overlay small{font-size:15px;color:var(--ink2)}
-.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:min(100%,260px)}
+.overlay>small{font-size:15px;color:var(--ink2)}
+.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:260px;max-width:100%}
 .box{background:var(--card);border-radius:18px;padding:10px 14px;box-shadow:0 5px 0 rgba(90,80,140,.15);border:3px solid transparent}
 .box h3{margin:0;font-size:15px;font-weight:400;color:var(--ink2)}
 .box .v{font-size:30px;font-variant-numeric:tabular-nums;line-height:1.15}
@@ -95,6 +94,7 @@ button:active{transform:translateY(3px)}
 
 .ctrl{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .ctrl button{font-size:18px}
+.ctrl.picking #start,.ctrl.picking #pause,.ctrl.picking #home{display:none}
 .help{font-size:15px;line-height:1.75;color:var(--ink2);background:rgba(255,255,255,.75);border-radius:16px;padding:10px 16px;max-width:560px;text-align:center}
 </style>
 </head>
@@ -103,18 +103,9 @@ button:active{transform:translateY(3px)}
 <main>
   <h1 id="title"></h1>
 
-  <section id="menu">
-    <p>어떻게 놀까요?</p>
-    <div class="modes">
-      <button class="mode b-pink" id="solo"><span class="ico">🙋</span>혼자하기<small>나 혼자<br>높은 점수에 도전!</small></button>
-      <button class="mode b-blue" id="duo"><span class="ico">👨‍👧</span>같이하기<small>둘이서 나란히!<br>먼저 꽉 차면 져요</small></button>
-    </div>
-    <button class="b-purple" id="muteMenu">🎵 음악 끄기</button>
-  </section>
-
-  <section id="game" hidden>
+  <section id="game">
     <div id="players"></div>
-    <div class="ctrl">
+    <div class="ctrl" id="ctrl">
       <button class="b-pink" id="start">시작!</button>
       <button class="b-green" id="pause">⏸ 잠깐 쉬기</button>
       <button class="b-purple" id="mute">🎵 음악 끄기</button>
@@ -199,7 +190,7 @@ const Sound=(()=>{
     }
   };
 })();
-function syncMuteLabel(){const t=Sound.muted?'🔇 음악 켜기':'🎵 음악 끄기';$('mute').textContent=t;$('muteMenu').textContent=t}
+function syncMuteLabel(){$('mute').textContent=Sound.muted?'🔇 음악 켜기':'🎵 음악 끄기'}
 syncMuteLabel();
 
 /* ---------- 블록 순서: 같이하기에서는 두 사람이 같은 순서로 받는다 ---------- */
@@ -238,7 +229,8 @@ class Player{
     this.dead=false;this.sparks=[];this.piece=null;this.nextT=null;
     this.hud();
   }
-  say(t,sub){this.q('.msg').textContent=t;this.ov.querySelector('small').textContent=sub||'';this.ov.hidden=false}
+  say(t,sub){this.q('.pick').hidden=true;this.q('.msg').textContent=t;this.ov.querySelector(':scope>small').textContent=sub||'';this.ov.hidden=false}
+  pick(){this.q('.msg').textContent='';this.ov.querySelector(':scope>small').textContent='';this.q('.pick').hidden=false;this.ov.hidden=false}
   hideMsg(){this.ov.hidden=true}
   hud(){
     this.q('.sc').textContent=this.score;this.q('.lv').textContent=this.level;this.q('.ln').textContent=this.lines;
@@ -347,7 +339,11 @@ function playerHTML(i,n){
     <div class="who">${NAMES[i]}</div>
     <div class="col">
       <div class="stage"><canvas class="board" width="300" height="600"></canvas>
-        <div class="overlay"><span class="msg"></span><small></small></div></div>
+        <div class="overlay"><span class="msg"></span><small></small>
+          <div class="pick" hidden><p>어떻게 놀까요?</p>
+            <button class="b-pink" data-mode="1"><span class="ico">🙋</span>혼자하기<small>높은 점수에 도전!</small></button>
+            <button class="b-blue" data-mode="2"><span class="ico">👫</span>같이하기<small>둘이서 나란히!</small></button>
+          </div></div></div>
       <div class="pad">
         <button data-p="${i}" data-a="left" aria-label="왼쪽">◀</button><button data-p="${i}" data-a="rotate" aria-label="돌리기">⟳</button><button data-p="${i}" data-a="right" aria-label="오른쪽">▶</button>
         <button data-p="${i}" data-a="soft" aria-label="아래로">▼</button><button data-p="${i}" data-a="hard" aria-label="쿵 내리기">⏬</button>
@@ -368,18 +364,22 @@ const HELP={
 };
 function enter(m){
   mode=m;
-  $('menu').hidden=true;$('game').hidden=false;
   const n=m===2?2:1;
   $('players').className=m===2?'duo':'';
   $('players').innerHTML=Array.from({length:n},(_,i)=>playerHTML(i,n)).join('');
   players=Array.from({length:n},(_,i)=>new Player(i,$('players').children[i]));
-  players.forEach(p=>{p.say('준비!','시작 버튼을 눌러요');p.draw()});
-  $('help').innerHTML=HELP[m];
+  players.forEach(p=>p.draw());
+  $('help').innerHTML=HELP[m];$('help').hidden=false;$('ctrl').classList.remove('picking');
   running=false;paused=false;over=false;musicLevel=1;
 }
-function goHome(){
-  running=false;paused=false;Sound.stop();
-  $('game').hidden=true;$('menu').hidden=false;mode=0;
+function showPicker(){
+  running=false;paused=false;over=false;Sound.stop();
+  mode=0;
+  $('players').className='';
+  $('players').innerHTML=playerHTML(0,1);
+  players=[new Player(0,$('players').children[0])];
+  players[0].draw();players[0].pick();
+  $('ctrl').classList.add('picking');$('help').hidden=true;
 }
 function startGame(){
   seq=[];over=false;paused=false;musicLevel=1;
@@ -437,12 +437,15 @@ document.addEventListener('keydown',e=>{
 $('players').addEventListener('click',e=>{
   const b=e.target.closest('[data-a]');if(b)act(+b.dataset.p,b.dataset.a);
 });
-$('solo').addEventListener('click',()=>enter(1));
-$('duo').addEventListener('click',()=>enter(2));
+$('players').addEventListener('click',e=>{
+  const b=e.target.closest('[data-mode]');if(!b)return;
+  enter(+b.dataset.mode);startGame();
+});
 $('start').addEventListener('click',()=>{startGame();$('start').blur()});
 $('pause').addEventListener('click',()=>{togglePause();$('pause').blur()});
-$('home').addEventListener('click',goHome);
-[$('mute'),$('muteMenu')].forEach(b=>b.addEventListener('click',()=>{Sound.toggle();syncMuteLabel();b.blur()}));
+$('home').addEventListener('click',showPicker);
+$('mute').addEventListener('click',()=>{Sound.toggle();syncMuteLabel();$('mute').blur()});
+showPicker();
 </script>
 </body>
 </html>
